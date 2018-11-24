@@ -1,0 +1,25 @@
+{
+  "name": "@open-rights-exchange/ore-protocol",
+  "version": "1.2.0",
+  "description": "Open Rights Exchange - ORE Protocol for identity and rights",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Open-Rights-Exchange/ore-protocol.git"
+  },
+  "keywords": [
+    "ORE"
+  ],
+  "author": "Aikon api.market <info@aikon.com> (www.aikon.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Open-Rights-Exchange/ore-protocol/issues"
+  },
+  "homepage": "https://github.com/Open-Rights-Exchange/ore-protocol#readme"
+}

@@ -4,8 +4,8 @@
  */
 #pragma once
 
-#include <eosiolib/asset.hpp>
-#include <eosiolib/eosio.hpp>
+#include "eosiolib/asset.hpp"
+#include "eosiolib/eosio.hpp"
 
 #include <string>
 
@@ -19,111 +19,117 @@ namespace eosio
 
 using std::string;
 
-class token : public contract
+class[[eosio::contract("ore.standard_token")]] token : public contract
 {
   public:
-    token(account_name self) : contract(self) {}
+    using contract::contract;
+        //token(name self) : contract(self) {}
 
-    void create(account_name issuer,
-                asset maximum_supply);
+    [[eosio::action]] 
+    void create(name issuer, asset maximum_supply);
 
-    void issue(account_name to, asset quantity, string memo);
+    [[eosio::action]] 
+    void issue(name to, asset quantity, string memo);
 
+    [[eosio::action]] 
     void retire(asset quantity, string memo);
 
-    void transfer(account_name from,
-                  account_name to,
-                  asset quantity,
-                  string memo);
+    [[eosio::action]] 
+    void transfer(name from, name to, asset quantity, string memo);
 
-    void approve(account_name from, account_name to, asset quantity, string memo);
+    [[eosio::action]] 
+    void approve(name from, name to, asset quantity, string memo);
 
-    void transferfrom(account_name sender, account_name from, account_name to, asset quantity, string memo);
+    [[eosio::action]] 
+    void transferfrom(name sender, name from, name to, asset quantity, string memo);
 
-    inline asset get_supply(symbol_name sym) const;
+    [[eosio::action]] 
+    void open(name owner, const symbol &symbol, name ram_payer);
 
-    inline asset get_balance(account_name owner, symbol_name sym) const;
+    [[eosio::action]] 
+    void close(name owner, const symbol &symbol);
 
-    inline asset allowance_of(account_name from, account_name to);
+    static asset get_supply( name token_contract_account, symbol_code sym_code )
+    {
+        stats statstable( token_contract_account, sym_code.raw() );
+        const auto& st = statstable.get( sym_code.raw() );
+        return st.supply;
+    }
+
+    static asset get_balance( name token_contract_account, name owner, symbol_code sym_code )
+    {
+        accounts accountstable( token_contract_account, owner.value );
+        const auto& ac = accountstable.get( sym_code.raw() );
+        return ac.balance;
+    }
+
+    inline asset allowance_of(name from, name to);
 
   private:
-    inline void set_allowance(account_name from, account_name to, asset quantity, bool increment = false);
+    inline void set_allowance(name from, name to, asset quantity, bool increment = false);
 
     //@abi table accounts i64
-    struct account
+    struct [[eosio::table]] account
     {
         asset balance;
 
-        uint64_t primary_key() const { return balance.symbol.name(); }
+        uint64_t primary_key() const { return balance.symbol.code().raw(); }
     };
+    
     //@abi table stat i64
-    struct currencystat
+    struct [[eosio::table]] currencystat
     {
         asset supply;
         asset max_supply;
-        account_name issuer;
+        name issuer;
 
-        uint64_t primary_key() const { return supply.symbol.name(); }
+        uint64_t primary_key() const { return supply.symbol.code().raw(); }
     };
 
     //@abi table allowances i64
-    struct allowance
+    struct [[eosio::table]] allowance
     {
-        account_name to;
+        name to;
         asset quantity;
 
-        uint64_t primary_key() const { return to; }
+        uint64_t primary_key() const { return to.value; }
 
         EOSLIB_SERIALIZE(allowance, (to)(quantity))
     };
 
-    typedef eosio::multi_index<N(allowances), allowance> _allowances;
-    typedef eosio::multi_index<N(accounts), account> accounts;
-    typedef eosio::multi_index<N(stat), currencystat> stats;
+    typedef eosio::multi_index<"allowances"_n, allowance> _allowances;
+    typedef eosio::multi_index<"accounts"_n, account> accounts;
+    typedef eosio::multi_index<"stat"_n, currencystat> stats;
 
-    void sub_balance(account_name owner, asset value);
-    void sub_balance_from(account_name sender, account_name owner, asset value);
-    void add_balance(account_name owner, asset value, account_name ram_payer);
+    void sub_balance(name owner, asset value);
+    void sub_balance_from(name sender, name owner, asset value);
+    void add_balance(name owner, asset value, name ram_payer);
 
   public:
     struct transfer_args
     {
-        account_name from;
-        account_name to;
+        name from;
+        name to;
         asset quantity;
         string memo;
     };
 };
 
-asset token::get_supply(symbol_name sym) const
+void token::set_allowance(name from, name to, asset quantity, bool increment)
 {
-    stats statstable(_self, sym);
-    const auto &st = statstable.get(sym);
-    return st.supply;
-}
-
-asset token::get_balance(account_name owner, symbol_name sym) const
-{
-    accounts accountstable(_self, owner);
-    const auto &ac = accountstable.get(sym);
-    return ac.balance;
-}
-
-void token::set_allowance(account_name from, account_name to, asset quantity, bool increment)
-{
-    auto sym = quantity.symbol.name();
-    stats statstable(_self, sym);
-    const auto &st = statstable.get(sym);
+    auto sym = quantity.symbol.code();
+    stats statstable(_self, sym.raw());
+    const auto &st = statstable.get(sym.raw());
 
     eosio_assert(quantity.is_valid(), "invalid quantity");
     eosio_assert(quantity.amount >= 0, "must transfer positive quantity");
     eosio_assert(quantity.symbol == st.supply.symbol, "symbol precision mismatch");
 
-    account_name key = to;
+    name key = to;
 
-    _allowances allowances(_self, from);
+    _allowances allowances(_self, from.value);
 
-    auto allowanceitr = allowances.find(key);
+    auto allowanceitr = allowances.find(key.value);
 
     if (allowanceitr == allowances.end())
     {
@@ -134,7 +140,7 @@ void token::set_allowance(account_name from, account_name to, asset quantity, bo
     }
     else
     {
-        allowances.modify(allowanceitr, 0, [&](auto &a) {
+        allowances.modify(allowanceitr, same_payer, [&](auto &a) {
             if (!increment)
                 a.quantity = quantity;
             else
@@ -143,11 +149,11 @@ void token::set_allowance(account_name from, account_name to, asset quantity, bo
     }
 }
 
-asset token::allowance_of(account_name from, account_name to)
+asset token::allowance_of(name from, name to)
 {
-    _allowances allowances(_self, from);
+    _allowances allowances(_self, from.value);
 
-    auto allowanceitr = allowances.find(to);
+    auto allowanceitr = allowances.find(to.value);
 
     eosio_assert(allowanceitr != allowances.end(), "no allowance approved for this account");
 

@@ -12,8 +12,10 @@ using namespace std;
 class [[eosio::contract("ore.rights_registry")]] rights_registry : public contract
 {
   public:
-    //@abi table rights i64
-    struct right_reg
+    using contract::contract;
+    rights_registry( name receiver, name code, datastream<const char*> ds): contract(receiver, code, ds), rightsindex(receiver, receiver.value){}
+
+    struct [[eosio::table]] right_reg
     {
         uint64_t id;
         string right_name;
@@ -26,14 +28,18 @@ class [[eosio::contract("ore.rights_registry")]] rights_registry : public contra
         EOSLIB_SERIALIZE(right_reg, (id)(right_name)(owner)(urls)(issuer_whitelist))
     };
 
-    typedef multi_index<"rights"_n, right_reg> right_registration_index;
+    using right_registration_index = eosio::multi_index<"rights"_n, right_reg> ;
+
+//   private:
+//     right_registration_index rightsindex;
 
   public:
-    // rights_registry(name self)
-    //     : contract(self) {}
-    using contract::contract;
+    right_registration_index rightsindex;
 
+    [[eosio::action]]
     void upsertright(name owner, string &right_name, vector<ore_types::endpoint_url> urls, vector<name> issuer_whitelist);
+    
+    [[eosio::action]]
     void deleteright(name owner, string &right_name);
 
     inline static uint64_t hashStr(const string &strkey)
@@ -43,11 +49,11 @@ class [[eosio::contract("ore.rights_registry")]] rights_registry : public contra
 
     right_reg find_right_by_name(string right_name)
     {
-        right_registration_index _endpoints(_self, _self);
+       // right_registration_index endpoints(_self, _self);
 
-        auto rightitr = _endpoints.find(hashStr(right_name));
+        auto rightitr = rightsindex.find(hashStr(right_name));
 
-        if (rightitr == _endpoints.end())
+        if (rightitr == rightsindex.end())
         {
             return right_reg{0};
         }

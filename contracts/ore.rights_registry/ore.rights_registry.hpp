@@ -28,11 +28,8 @@ class [[eosio::contract("ore.rights_registry")]] rights_registry : public contra
         EOSLIB_SERIALIZE(right_reg, (id)(right_name)(owner)(urls)(issuer_whitelist))
     };
 
-    using right_registration_index = eosio::multi_index<"rights"_n, right_reg> ;
-
-//   private:
-//     right_registration_index rightsindex;
-
+    typedef eosio::multi_index<"rights"_n, right_reg>right_registration_index;
+    
   public:
     right_registration_index rightsindex;
 

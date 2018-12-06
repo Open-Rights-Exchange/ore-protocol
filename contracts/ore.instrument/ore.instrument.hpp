@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <string>
 
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/asset.hpp>
-#include <eosiolib/transaction.hpp>
+#include "eosiolib/eosio.hpp"
+#include "eosiolib/asset.hpp"
+#include "eosiolib/transaction.hpp"
 #include "../ore.rights_registry/ore.rights_registry.hpp"
 
 using namespace eosio;
@@ -15,12 +15,12 @@ using namespace std;
 class instrument : public eosio::contract
 {
   public:
-    instrument(account_name self)
+    instrument(name self)
         : contract(self), _account(_self, _self), _tokens(_self, _self) {}
 
     struct instrument_data
     {
-        account_name issuer;
+        name issuer;
         string instrument_class;
         string description;
         string instrument_template;
@@ -40,8 +40,8 @@ class instrument : public eosio::contract
     {
         //721 standard properties
         uint64_t id;
-        account_name owner;
-        account_name minted_by;
+        name owner;
+        name minted_by;
         uint64_t minted_at;
 
         //instrument properties
@@ -70,7 +70,7 @@ class instrument : public eosio::contract
     //@abi table account i64
     struct accountdata
     {
-        account_name owner;
+        name owner;
         uint64_t balance;
         vector<uint64_t> instruments;
         uint64_t primary_key() const { return owner; }
@@ -85,7 +85,7 @@ class instrument : public eosio::contract
     // struct allowancedata
     // {
     //     uint64_t token_id;
-    //     account_name to;
+    //     name to;
 
     //     uint64_t primary_key() const { return token_id; }
 
@@ -108,7 +108,7 @@ class instrument : public eosio::contract
     {
         asset supply;
         asset max_supply;
-        account_name issuer;
+        name issuer;
 
         uint64_t primary_key() const { return supply.symbol.name(); }
     };
@@ -116,20 +116,20 @@ class instrument : public eosio::contract
     typedef eosio::multi_index<N(accounts), account> accounts;
     typedef eosio::multi_index<N(stat), currencystat> stats;
 
-    void sub_balance(account_name owner, asset value);
-    void sub_balance_from(account_name sender, account_name owner, asset value);
-    void add_balance(account_name owner, asset value, account_name ram_payer);
-    void transfer_balances(account_name from, account_name to, uint64_t instrument_id, int64_t amount = 1);
+    void sub_balance(name owner, asset value);
+    void sub_balance_from(name sender, name owner, asset value);
+    void add_balance(name owner, asset value, name ram_payer);
+    void transfer_balances(name from, name to, uint64_t instrument_id, int64_t amount = 1);
 
   public:
     //public utility functions
     token find_token_by_id(uint64_t id);
     bool isToken(uint64_t id);
     token find_token_by_template(string instrument_template);
-    bool _owns(account_name claimant, uint64_t token_id);
+    bool _owns(name claimant, uint64_t token_id);
     uint64_t total_supply();
-    uint64_t balance_of(account_name owner);
-    account_name owner_of(uint64_t token_id);
+    uint64_t balance_of(name owner);
+    name owner_of(uint64_t token_id);
 
     inline static uint64_t hashStringToInt(const string &strkey)
     {
@@ -137,16 +137,16 @@ class instrument : public eosio::contract
     }
 
     //actions
-    void approve(account_name from, account_name to, uint64_t token_id);
-    void mint(account_name minter, account_name owner, instrument_data instrument, uint64_t start_time, uint64_t end_time, uint64_t instrumentId);
-    void checkright(account_name minter, account_name issuer, string rightname, uint64_t deferred_transaction_id);
-    void update(account_name updater, string instrument_template, instrument_data instrument, uint64_t instrument_id, uint64_t start_time, uint64_t end_time);
-    void transfer(account_name sender, account_name to, uint64_t token_id);
-    void revoke(account_name revoker, uint64_t token_id);
-    void burn(account_name burner, uint64_t token_id);
-    void create(account_name issuer, asset maximum_supply);
-    void createinst(account_name minter, account_name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time);
-    void issue(account_name to, asset quantity, string memo);
+    void approve(name from, name to, uint64_t token_id);
+    void mint(name minter, name owner, instrument_data instrument, uint64_t start_time, uint64_t end_time, uint64_t instrumentId);
+    void checkright(name minter, name issuer, string rightname, uint64_t deferred_transaction_id);
+    void update(name updater, string instrument_template, instrument_data instrument, uint64_t instrument_id, uint64_t start_time, uint64_t end_time);
+    void transfer(name sender, name to, uint64_t token_id);
+    void revoke(name revoker, uint64_t token_id);
+    void burn(name burner, uint64_t token_id);
+    void create(name issuer, asset maximum_supply);
+    void createinst(name minter, name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time);
+    void issue(name to, asset quantity, string memo);
 };
 
 instrument::token instrument::find_token_by_id(uint64_t id)
@@ -198,14 +198,14 @@ instrument::token instrument::find_token_by_template(string instrument_template)
 }
 
 // Return an account's total balance
-uint64_t instrument::balance_of(account_name owner)
+uint64_t instrument::balance_of(name owner)
 {
     auto account = _account.find(owner);
     return account->balance;
 }
 
 // Returns who owns a token
-account_name instrument::owner_of(uint64_t token_id)
+name instrument::owner_of(uint64_t token_id)
 {
     auto token = _tokens.find(token_id);
     return token->owner;
@@ -225,12 +225,12 @@ uint64_t instrument::total_supply()
 }
 
 // Check if account owns the token
-bool instrument::_owns(account_name claimant, uint64_t token_id)
+bool instrument::_owns(name claimant, uint64_t token_id)
 {
     return owner_of(token_id) == claimant;
 }
 
-void instrument::transfer_balances(account_name from, account_name to, uint64_t instrument_id, int64_t amount)
+void instrument::transfer_balances(name from, name to, uint64_t instrument_id, int64_t amount)
 {
     auto fromitr = _account.find(from);
 

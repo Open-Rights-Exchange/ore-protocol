@@ -4,12 +4,12 @@
  */
 #pragma once
 
-#include <eosiolib/eosio.hpp>
+#include "eosiolib/eosio.hpp"
 #include "../ore_types/ore_types.hpp"
 using namespace eosio;
 using namespace std;
 
-class rights_registry : public contract
+class [[eosio::contract("ore.rights_registry")]] rights_registry : public contract
 {
   public:
     //@abi table rights i64
@@ -17,23 +17,24 @@ class rights_registry : public contract
     {
         uint64_t id;
         string right_name;
-        account_name owner;
+        name owner;
         vector<ore_types::endpoint_url> urls;
-        vector<account_name> issuer_whitelist;
+        vector<name> issuer_whitelist;
 
         uint64_t primary_key() const { return id; }
 
         EOSLIB_SERIALIZE(right_reg, (id)(right_name)(owner)(urls)(issuer_whitelist))
     };
 
-    typedef multi_index<N(rights), right_reg> right_registration_index;
+    typedef multi_index<"rights"_n, right_reg> right_registration_index;
 
   public:
-    rights_registry(account_name self)
-        : contract(self) {}
+    // rights_registry(name self)
+    //     : contract(self) {}
+    using contract::contract;
 
-    void upsertright(account_name owner, string &right_name, vector<ore_types::endpoint_url> urls, vector<account_name> issuer_whitelist);
-    void deleteright(account_name owner, string &right_name);
+    void upsertright(name owner, string &right_name, vector<ore_types::endpoint_url> urls, vector<name> issuer_whitelist);
+    void deleteright(name owner, string &right_name);
 
     inline static uint64_t hashStr(const string &strkey)
     {

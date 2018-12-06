@@ -7,8 +7,6 @@ void rights_registry::upsertright(name owner, string &right_name, vector<ore_typ
 {
     require_auth(owner);
 
-    //right_registration_index right_registration(_self, _self);
-
     auto itr = rightsindex.find(hashStr(right_name));
 
     if (itr == rightsindex.end())
@@ -37,8 +35,6 @@ void rights_registry::upsertright(name owner, string &right_name, vector<ore_typ
 void rights_registry::deleteright(name owner, string &right_name)
 {
     require_auth(owner);
-
-    //right_registration_index right_registration(_self, _self);
 
     auto itr = rightsindex.find(hashStr(right_name));
 

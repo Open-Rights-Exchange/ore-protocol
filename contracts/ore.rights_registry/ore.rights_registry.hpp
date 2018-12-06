@@ -46,8 +46,6 @@ class [[eosio::contract("ore.rights_registry")]] rights_registry : public contra
 
     right_reg find_right_by_name(string right_name)
     {
-       // right_registration_index endpoints(_self, _self);
-
         auto rightitr = rightsindex.find(hashStr(right_name));
 
         if (rightitr == rightsindex.end())

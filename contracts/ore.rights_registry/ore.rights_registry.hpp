@@ -6,6 +6,7 @@
 
 #include "eosiolib/eosio.hpp"
 #include "../ore_types/ore_types.hpp"
+
 using namespace eosio;
 using namespace std;
 
@@ -13,9 +14,9 @@ class [[eosio::contract("ore.rights_registry")]] rights_registry : public contra
 {
   public:
     using contract::contract;
-    rights_registry( name receiver, name code, datastream<const char*> ds): contract(receiver, code, ds), rightsindex(receiver, receiver.value){}
+    rights_registry( name receiver, name code, datastream<const char*> ds): contract(receiver, code, ds), _rights(receiver, receiver.value){}
 
-    struct [[eosio::table]] right_reg
+    TABLE right_reg
     {
         uint64_t id;
         string right_name;
@@ -31,13 +32,11 @@ class [[eosio::contract("ore.rights_registry")]] rights_registry : public contra
     typedef eosio::multi_index<"rights"_n, right_reg>right_registration_index;
     
   public:
-    right_registration_index rightsindex;
+    right_registration_index _rights;
 
-    [[eosio::action]]
-    void upsertright(name owner, string &right_name, vector<ore_types::endpoint_url> urls, vector<name> issuer_whitelist);
+    ACTION upsertright(name owner, string &right_name, vector<ore_types::endpoint_url> urls, vector<name> issuer_whitelist);
     
-    [[eosio::action]]
-    void deleteright(name owner, string &right_name);
+    ACTION deleteright(name owner, string &right_name);
 
     inline static uint64_t hashStr(const string &strkey)
     {
@@ -46,9 +45,9 @@ class [[eosio::contract("ore.rights_registry")]] rights_registry : public contra
 
     right_reg find_right_by_name(string right_name)
     {
-        auto rightitr = rightsindex.find(hashStr(right_name));
+        auto rightitr = _rights.find(hashStr(right_name));
 
-        if (rightitr == rightsindex.end())
+        if (rightitr == _rights.end())
         {
             return right_reg{0};
         }

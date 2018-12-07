@@ -10,7 +10,7 @@
 using namespace eosio;
 using namespace std;
 
-class [[eosio::contract("ore.rights_registry")]] rights_registry : public contract
+class [[eosio::contract("ore.rights_registry")]] rights_registry : public eosio::contract
 {
   public:
     using contract::contract;

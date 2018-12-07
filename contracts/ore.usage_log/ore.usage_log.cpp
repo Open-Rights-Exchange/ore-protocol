@@ -12,8 +12,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
     using contract::contract;
     usage_log(name receiver, name code, datastream<const char*> ds): contract(receiver, code, ds), _logs(receiver, receiver.value){}
 
-    [[eosio::action]]
-    void createlog(uint64_t instrument_id, string right_name, string token_hash, uint64_t timestamp)
+    ACTION createlog(uint64_t instrument_id, string right_name, string token_hash, uint64_t timestamp)
     {
         uint64_t right_hash = hashStr(right_name);
 
@@ -28,8 +27,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
 
     // TODO: require authority of the reconciler
     // delets the entry from the log table with matching token_hash
-    [[eosio::action]]
-    void deletelog(uint64_t instrument_id, string token_hash)
+    ACTION deletelog(uint64_t instrument_id, string token_hash)
     {
         auto itr = _logs.find(hashStr(token_hash));
 
@@ -40,8 +38,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
         _logs.erase(itr);
     }
 
-    [[eosio::action]]
-    void updatecount(uint64_t instrument_id, string right_name, asset cpu)
+    ACTION updatecount(uint64_t instrument_id, string right_name, asset cpu)
     {
         uint64_t right_hash = hashStr(right_name);
 
@@ -70,7 +67,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
     }
 
   private:
-    struct [[eosio::table]] log
+    TABLE log
     {
         uint64_t instrument_id;
         uint64_t right_hash;
@@ -83,7 +80,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
     };
 
     //following structure enables fast query of api call count for the verifier
-    struct [[eosio::table]] callcount
+    TABLE callcount
     {
         uint64_t right_hash;
         string right_name;

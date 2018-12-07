@@ -24,7 +24,7 @@ ACTION instrument::mint(name minter, name owner, instrument_data instrument,
     require_auth(minter);
 
     string msg = "owner account does not exist " + owner.to_string();
-    eosio_assert(is_account(owner), string_to_char(msg));
+    eosio_assert(is_account(owner), ore_util.string_to_char(msg));
 
     // if an instrument_template name is passed-in, look from an instrument with the same name on the chain
     // ...if one exists, the new instrument will be a copy of that one
@@ -191,10 +191,10 @@ ACTION instrument::createinst(name minter, name owner, uint64_t instrumentId, in
 */
 ACTION instrument::checkright(name minter, name issuer, string rightname, uint64_t deferred_transaction_id = 0)
 {
-
-    //require_auth(_self);
+    require_auth(_self);
 
     string msg;
+
     rights_registry rights_contract = rights_registry(_self,_code,_ds);
 
     // check that right exists in the rights registry
@@ -207,7 +207,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
            cancel_deferred(deferred_transaction_id);
         }
         msg = "right:" + rightname + " doesn't exist";
-        eosio_assert(rightitr.owner.value != 0, string_to_char(msg));
+        eosio_assert(rightitr.owner.value != 0, ore_util.string_to_char(msg));
     }
 
     // check if the minter of the instrument is the issuer of the right
@@ -224,7 +224,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
                 cancel_deferred(deferred_transaction_id);
             }
             msg = "Attempt to create instrument with right: " + rightname + " by minter: " + minter.to_string() + " who isn't whitelisted or owner of right";
-            eosio_assert(position_in_whitelist != rightitr.issuer_whitelist.end(), string_to_char(msg));
+            eosio_assert(position_in_whitelist != rightitr.issuer_whitelist.end(), ore_util.string_to_char(msg));
         }
     }
 
@@ -242,7 +242,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
                 cancel_deferred(deferred_transaction_id);
             }
             msg = "Attempt to create instrument with right: " + rightname + " by issuer: " + issuer.to_string() + " who isn't whitelisted or owner of right";
-            eosio_assert(issuer_in_whitelist != rightitr.issuer_whitelist.end(), string_to_char(msg));
+            eosio_assert(issuer_in_whitelist != rightitr.issuer_whitelist.end(), ore_util.string_to_char(msg));
         }
     }
 }
@@ -382,13 +382,13 @@ ACTION instrument::transfer(name sender, name to, uint64_t instrument_id)
     auto tokenitr = _tokens.find(instrument_id);
 
     msg = "Instrument Id" + to_string(instrument_id) + "doesn't exist";
-    eosio_assert(tokenitr != _tokens.end(), string_to_char(msg));
+    eosio_assert(tokenitr != _tokens.end(), ore_util.string_to_char(msg));
 
     msg = "Sender account is not allowed to transfer the instrument " + sender.to_string();
-    eosio_assert(tokenitr->owner == sender, string_to_char(msg));
+    eosio_assert(tokenitr->owner == sender, ore_util.string_to_char(msg));
 
     msg = "Instrument Id " + to_string(instrument_id) + " has been previously revoked";
-    eosio_assert(tokenitr->revoked == false, string_to_char(msg));
+    eosio_assert(tokenitr->revoked == false, ore_util.string_to_char(msg));
 
     // transfer balance in the accounts table
     transfer_balances(sender, to, instrument_id);
@@ -412,13 +412,13 @@ ACTION instrument::revoke(name revoker, uint64_t instrument_id)
     auto tokenitr = _tokens.find(instrument_id);
 
     msg = "Instrument Id" + to_string(instrument_id) + "doesn't exist";
-    eosio_assert(tokenitr != _tokens.end(), string_to_char(msg));
+    eosio_assert(tokenitr != _tokens.end(), ore_util.string_to_char(msg));
 
     msg = "The account " + revoker.to_string() + "doesn't have authority to revoke the instrument";
-    eosio_assert(tokenitr->owner == revoker, string_to_char(msg));
+    eosio_assert(tokenitr->owner == revoker, ore_util.string_to_char(msg));
 
     msg = "Instrument Id" + to_string(instrument_id) + "has been previously revoked";
-    eosio_assert(tokenitr->revoked == false, string_to_char(msg));
+    eosio_assert(tokenitr->revoked == false, ore_util.string_to_char(msg));
 
     _tokens.modify(tokenitr, same_payer, [&](auto &t) {
         t.revoked = true;
@@ -440,13 +440,13 @@ ACTION instrument::burn(name burner, uint64_t instrument_id)
     auto tokenitr = _tokens.find(instrument_id);
 
     msg = "Instrument Id" + to_string(instrument_id) + "doesn't exist";
-    eosio_assert(tokenitr != _tokens.end(), string_to_char(msg));
+    eosio_assert(tokenitr != _tokens.end(), ore_util.string_to_char(msg));
 
     msg = "The account " + burner.to_string() + "doesn't have authority to burn the instrument";
-    eosio_assert(tokenitr->owner == burner, string_to_char(msg));
+    eosio_assert(tokenitr->owner == burner, ore_util.string_to_char(msg));
 
     msg = "Instrument Id" + to_string(instrument_id) + "is not mutable and cannot be burned.";
-    eosio_assert(tokenitr->instrument.mutability == 2, string_to_char(msg));
+    eosio_assert(tokenitr->instrument.mutability == 2, ore_util.string_to_char(msg));
 
     transfer_balances(burner, same_payer, instrument_id);
     sub_balance(burner, asset(10000, symbol(symbol_code("OREINST"),4)));

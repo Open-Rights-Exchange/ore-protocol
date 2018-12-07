@@ -9,6 +9,7 @@
 #include "eosiolib/print.hpp"
 #include "eosiolib/transaction.hpp"
 #include "eosiolib/time.hpp"
+#include "../ore_utils/ore_utils.hpp"
 #include "../ore.rights_registry/ore.rights_registry.hpp"
 
 using namespace eosio;
@@ -82,6 +83,9 @@ class [[eosio::contract("ore.instrument")]] instrument : public eosio::contract
 
     accountindex _account;
 
+    // ore_utils - a helper library for ore
+    ore_utils ore_util;
+
   private:
     TABLE accountbalance
     {
@@ -116,7 +120,6 @@ class [[eosio::contract("ore.instrument")]] instrument : public eosio::contract
     uint64_t total_supply();
     uint64_t balance_of(name owner);
     name owner_of(uint64_t token_id);
-    char *string_to_char(string str);
 
     inline static uint64_t hashStringToInt(const string &strkey)
     {
@@ -189,12 +192,6 @@ uint64_t instrument::balance_of(name owner)
 {
     auto account = _account.find(owner.value);
     return account->balance;
-}
-
-char *instrument::string_to_char(string str)
-{
-    char cstr[str.size() + 1];
-    return copy(str.begin(), str.end(), cstr);
 }
 
 // Returns who owns a token

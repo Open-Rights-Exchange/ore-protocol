@@ -6,6 +6,7 @@
 
 #include "eosiolib/eosio.hpp"
 #include "eosiolib/asset.hpp"
+#include "eosiolib/print.hpp"
 #include "eosiolib/transaction.hpp"
 #include "eosiolib/time.hpp"
 #include "../ore.rights_registry/ore.rights_registry.hpp"
@@ -80,20 +81,6 @@ class [[eosio::contract("ore.instrument")]] instrument : public eosio::contract
     typedef eosio::multi_index<"account"_n, accountdata> accountindex;
 
     accountindex _account;
-    // NOTE: Uncomment and use in future if required
-    // Schema for allowance feature like in ERC-721
-    //@abi table allowances i64
-    // struct allowancedata
-    // {
-    //     uint64_t token_id;
-    //     name to;
-
-    //     uint64_t primary_key() const { return token_id; }
-
-    //     EOSLIB_SERIALIZE(allowancedata, (token_id)(to))
-    // };
-
-    // typedef eosio::multi_index<N(allowances), allowancedata> allowances;
 
   private:
     TABLE accountbalance
@@ -129,6 +116,7 @@ class [[eosio::contract("ore.instrument")]] instrument : public eosio::contract
     uint64_t total_supply();
     uint64_t balance_of(name owner);
     name owner_of(uint64_t token_id);
+    char *string_to_char(string str);
 
     inline static uint64_t hashStringToInt(const string &strkey)
     {
@@ -201,6 +189,12 @@ uint64_t instrument::balance_of(name owner)
 {
     auto account = _account.find(owner.value);
     return account->balance;
+}
+
+char *instrument::string_to_char(string str)
+{
+    char cstr[str.size() + 1];
+    return copy(str.begin(), str.end(), cstr);
 }
 
 // Returns who owns a token

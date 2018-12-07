@@ -1,9 +1,6 @@
 #include "ore.instrument.hpp"
 using namespace eosio;
 
-// transaction id for deferred transaction
-account_name RIGHTS_CONTRACT_NAME = N(rights.ore);
-
 // Creates new instrument
 // NOTE: this should result in changes in the following tables :
 // tokens   - add new token
@@ -14,12 +11,12 @@ account_name RIGHTS_CONTRACT_NAME = N(rights.ore);
 // checkright  - for each right in the instrument object, mint instrument calls check right within a deferred transaction
 // createinst  - once all the rights are checked, the last action in the deferred transaction is createinst which adds the instrument to the tokens table
 // NOTE: if any of the checkright action fails, it will cancel the deferred transaction and the creatinst action will not be called. Hence no instrument will be created.
-void instrument::mint(account_name minter, account_name owner, instrument_data instrument,
+ACTION instrument::mint(name minter, name owner, instrument_data instrument,
                       uint64_t start_time, uint64_t end_time, uint64_t instrumentId = 0)
 {
     // Checking if the minter has the required authorization
     require_auth(minter);
-    auto hashtable = _tokens.get_index<N(template_hash)>();
+    auto hashtable = _tokens.get_index<"templatehash"_n>();
     auto item = hashtable.find(hashStringToInt(instrument.instrument_template));
 
     if (instrument.rights.size() == 0)
@@ -69,7 +66,7 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
 
         // Adding createinst action to the deferred transaction to add the new instrument to the tokens table
         create_instrument.actions.emplace_back(
-            permission_level{N(instr.ore), N(active)}, _self, N(createinst),
+            permission_level{"instr.ore"_n, "active"_n}, _self, "createinst"_n,
             std::make_tuple(minter,
                             owner,
                             instrumentId,
@@ -93,7 +90,7 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
         for (int i = 0; i < instrument.rights.size(); i++)
         {
             deferred_instrument.actions.emplace_back(
-                permission_level{N(instr.ore), N(active)}, _self, N(checkright),
+                permission_level{"instr.ore"_n, "active"_n}, _self, "checkright"_n,
                 std::make_tuple(
                     minter,
                     instrument.issuer,
@@ -103,7 +100,7 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
 
         // Adding createinst action to the deferred transaction to add the new instrument to the tokens table
         deferred_instrument.actions.emplace_back(
-            permission_level{N(instr.ore), N(active)}, _self, N(createinst),
+            permission_level{"instr.ore"_n, "active"_n}, _self, "createinst"_n,
             std::make_tuple(minter,
                             owner,
                             instrumentId,
@@ -116,10 +113,10 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
     }
 }
 
-void instrument::createinst(account_name minter, account_name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time)
+ACTION instrument::createinst(name minter, name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time)
 {
     require_auth(_self);
-    auto accountitr = _account.find(owner);
+    auto accountitr = _account.find(owner.value);
 
     // check if account is already registered to accounts table
     if (accountitr == _account.end())
@@ -129,7 +126,7 @@ void instrument::createinst(account_name minter, account_name owner, uint64_t in
             a.balance = 0;
             print("new instrument account: ", a.primary_key(), "\n");
         });
-        accountitr = _account.find(owner);
+        accountitr = _account.find(owner.value);
     }
 
     // writing to tokens table
@@ -137,7 +134,7 @@ void instrument::createinst(account_name minter, account_name owner, uint64_t in
         a.id = instrumentId;
         a.owner = owner;
         a.minted_by = minter;
-        a.minted_at = time(0);
+        a.minted_at = now();;
         a.instrument = instrument;
         a.revoked = false;
         a.start_time = start_time;
@@ -147,7 +144,7 @@ void instrument::createinst(account_name minter, account_name owner, uint64_t in
     });
 
     // increasing the account balance (total token count)
-    _account.modify(accountitr, 0, [&](auto &a) {
+    _account.modify(accountitr, same_payer, [&](auto &a) {
         a.balance++;
         a.instruments.push_back(instrumentId);
     });
@@ -159,22 +156,22 @@ void instrument::createinst(account_name minter, account_name owner, uint64_t in
     eosio_assert(is_account(owner), "to account does not exist");
 
     // transfer 1 OREINST from the issuer account for OREINST to the owner account of instrument
-    sub_balance(_self, asset(10000, symbol_type(S(4, OREINST))));
-    add_balance(owner, asset(10000, symbol_type(S(4, OREINST))), _self);
+    sub_balance(_self, asset(10000, symbol(symbol_code("OREINST"),4)));
+    add_balance(owner, asset(10000, symbol(symbol_code("OREINST"),4)), _self);
 }
 
-void instrument::checkright(account_name minter, account_name issuer, string rightname, uint64_t deferred_transaction_id = 0)
+ACTION instrument::checkright(name minter, name issuer, string rightname, uint64_t deferred_transaction_id = 0)
 {
 
     require_auth(_self);
 
     //instantiating rights.ore contract
-    rights_registry rights_contract = rights_registry(RIGHTS_CONTRACT_NAME);
+    rights_registry rights_contract = rights_registry(_self,_code,_ds);
 
-    print("action:checkright:", rightname, "\n");
+    print("action:checkright:", name{rightname}, "\n");
 
     auto rightitr = rights_contract.find_right_by_name(rightname);
-    if (rightitr.owner == 0)
+    if (rightitr.owner.value == 0)
     {
         if (deferred_transaction_id != 0)
         {
@@ -212,7 +209,7 @@ void instrument::checkright(account_name minter, account_name issuer, string rig
 // tokens  - the instrument token gets updated depending on the mutabiility
 // if mutability is 1, start_time and/or end_time can be updated
 // if mutability is 2, everything except the owner can be updated
-void instrument::update(account_name updater, string instrument_template, instrument_data instrument = {},
+ACTION instrument::update(name updater, string instrument_template, instrument_data instrument = {},
                         uint64_t instrument_id = 0, uint64_t start_time = 0, uint64_t end_time = 0)
 {
     require_auth(updater);
@@ -235,7 +232,7 @@ void instrument::update(account_name updater, string instrument_template, instru
 
     eosio_assert(item.instrument.mutability == 1 || item.instrument.mutability == 2, "the instrument to be updated is immutable");
 
-    rights_registry rights_contract = rights_registry(RIGHTS_CONTRACT_NAME);
+    rights_registry rights_contract = rights_registry(_self,_code,_ds);
 
     auto tokenitr = _tokens.find(item.id);
 
@@ -262,7 +259,7 @@ void instrument::update(account_name updater, string instrument_template, instru
     if (item.instrument.mutability == 1)
     {
         // update the instrument token in the tokens table
-        _tokens.modify(tokenitr, 0, [&](auto &a) {
+        _tokens.modify(tokenitr, same_payer, [&](auto &a) {
             a.start_time = new_start;
             a.end_time = new_end;
         });
@@ -284,7 +281,7 @@ void instrument::update(account_name updater, string instrument_template, instru
         for (int i = 0; i < instrument.rights.size(); i++)
         {
             auto rightitr = rights_contract.find_right_by_name(instrument.rights[i].right_name);
-            if (rightitr.owner == 0)
+            if (rightitr.owner.value == 0)
                 eosio_assert(false, "right doesn't exist");
 
             if (rightitr.owner != instrument.issuer)
@@ -304,11 +301,11 @@ void instrument::update(account_name updater, string instrument_template, instru
 
         auto tokenitr = _tokens.find(item.id);
         // update the instrument token in the tokens table
-        _tokens.modify(tokenitr, 0, [&](auto &a) {
+        _tokens.modify(tokenitr, same_payer, [&](auto &a) {
             a.id = item.id;
             a.owner = item.owner;
             a.minted_by = updater;
-            a.minted_at = time(0);
+            a.minted_at = now();
             a.instrument = item.instrument;
             a.revoked = false;
             a.start_time = new_start;
@@ -328,7 +325,7 @@ void instrument::update(account_name updater, string instrument_template, instru
 // tokens   - owner field of the token gets updated
 // account  - instrument owner's list of owned instruments get updated
 // accounts - OREINST symbol balance gets updated
-void instrument::transfer(account_name sender, account_name to, uint64_t token_id)
+ACTION instrument::transfer(name sender, name to, uint64_t token_id)
 {
     require_auth(sender);
 
@@ -367,14 +364,16 @@ void instrument::transfer(account_name sender, account_name to, uint64_t token_i
     // }
 
     transfer_balances(sender, to, token_id);
-    sub_balance(sender, asset(10000, symbol_type(S(4, OREINST))));
-    add_balance(to, asset(10000, symbol_type(S(4, OREINST))), sender);
-    _tokens.modify(tokenitr, 0, [&](auto &a) {
+
+    sub_balance(sender, asset(10000, symbol(symbol_code("OREINST"),4)));
+    add_balance(to, asset(10000, symbol(symbol_code("OREINST"),4)), sender);
+
+    _tokens.modify(tokenitr, same_payer, [&](auto &a) {
         a.owner = to;
     });
 }
 
-void instrument::revoke(account_name revoker, uint64_t token_id)
+ACTION instrument::revoke(name revoker, uint64_t token_id)
 {
     require_auth(revoker);
 
@@ -386,7 +385,7 @@ void instrument::revoke(account_name revoker, uint64_t token_id)
 
     eosio_assert(tokenitr->revoked == false, "Token is already revoked");
 
-    _tokens.modify(tokenitr, 0, [&](auto &t) {
+    _tokens.modify(tokenitr, same_payer, [&](auto &t) {
         t.revoked = true;
     });
 }
@@ -396,7 +395,7 @@ void instrument::revoke(account_name revoker, uint64_t token_id)
 // tokens   - burnt token gets removed from the table
 // account  - instrument owner's list of owned instruments get updated
 // accounts - OREINST symbol balance gets updated
-void instrument::burn(account_name burner, uint64_t token_id)
+ACTION instrument::burn(name burner, uint64_t token_id)
 {
     require_auth(burner);
     bool from = false;
@@ -409,30 +408,30 @@ void instrument::burn(account_name burner, uint64_t token_id)
 
     eosio_assert(tokenitr->instrument.mutability == 2, "Instrument is not mutable");
 
-    transfer_balances(burner, 0, token_id);
-    sub_balance(burner, asset(10000, symbol_type(S(4, OREINST))));
+    transfer_balances(burner, same_payer, token_id);
+    sub_balance(burner, asset(10000, symbol(symbol_code("OREINST"),4)));
 
     _tokens.erase(tokenitr);
 }
 
 // -CUSTOM_CODE-it replicates the create function of ore.standard_token
 // Creates a new currency OREINST
-void instrument::create(account_name issuer,
+ACTION instrument::create(name issuer,
                         asset maximum_supply)
 {
     require_auth(_self);
 
     // Symbol is hardcoded here to prevent creating any other symbol than OREINST
     // auto sym = "maximum_supply.symbol";
-    eosio::symbol_type sym = eosio::string_to_symbol(4, "OREINST");
+    eosio::symbol sym = symbol(symbol_code("OREINST"),4);
 
     eosio_assert(maximum_supply.symbol == sym, "symbol name must be ORINST");
     eosio_assert(sym.is_valid(), "invalid symbol name");
     eosio_assert(maximum_supply.is_valid(), "invalid supply");
     eosio_assert(maximum_supply.amount > 0, "max-supply must be positive");
 
-    stats statstable(_self, sym.name());
-    auto existing = statstable.find(sym.name());
+    stats statstable(_self, sym.code().raw());
+    auto existing = statstable.find(sym.code().raw());
     eosio_assert(existing == statstable.end(), "token with symbol already exists");
 
     statstable.emplace(_self, [&](auto &s) {
@@ -444,15 +443,14 @@ void instrument::create(account_name issuer,
 
 // -CUSTOM_CODE-it replicates the issue function of ore.standard_token except the inline transfer action present in ore.standard_token
 // issue OREINST to an account
-void instrument::issue(account_name to, asset quantity, string memo)
+ACTION instrument::issue(name to, asset quantity, string memo)
 {
     auto sym = quantity.symbol;
     eosio_assert(sym.is_valid(), "invalid symbol name");
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
 
-    auto sym_name = sym.name();
-    stats statstable(_self, sym_name);
-    auto existing = statstable.find(sym_name);
+    stats statstable(_self, sym.code().raw());
+    auto existing = statstable.find(sym.code().raw());
     eosio_assert(existing != statstable.end(), "token with symbol does not exist, create token before issue");
     const auto &st = *existing;
 
@@ -463,7 +461,7 @@ void instrument::issue(account_name to, asset quantity, string memo)
     eosio_assert(quantity.symbol == st.supply.symbol, "symbol precision mismatch");
     eosio_assert(quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
 
-    statstable.modify(st, 0, [&](auto &s) {
+    statstable.modify(st, same_payer, [&](auto &s) {
         s.supply += quantity;
     });
 
@@ -477,11 +475,11 @@ void instrument::issue(account_name to, asset quantity, string memo)
 }
 
 // -CUSTOM_CODE-it replicates the sub_balance function of ore.standard_token
-void instrument::sub_balance(account_name owner, asset value)
+void instrument::sub_balance(name owner, asset value)
 {
-    accounts from_acnts(_self, owner);
+    accounts from_acnts(_self, owner.value);
 
-    const auto &from = from_acnts.get(value.symbol.name(), "no balance object found");
+    const auto &from = from_acnts.get(value.symbol.code().raw(), "no balance object found");
     eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
 
     if (from.balance.amount == value.amount)
@@ -500,7 +498,7 @@ void instrument::sub_balance(account_name owner, asset value)
 // NOTE: Uncomment and use in future if required
 // It is used by transfer_from account to specify the RAM payer as the "sender" account and not the "owner" account as in the sub_balance function
 // NOTE: used by instrument::approve action
-// void instrument::sub_balance_from(account_name sender, account_name owner, asset value)
+// void instrument::sub_balance_from(name sender, name owner, asset value)
 // {
 //     accounts from_acnts(_self, owner);
 
@@ -520,10 +518,10 @@ void instrument::sub_balance(account_name owner, asset value)
 // }
 
 // -CUSTOM_CODE-it replicates the add_balance function of ore.standard_token
-void instrument::add_balance(account_name owner, asset value, account_name ram_payer)
+void instrument::add_balance(name owner, asset value, name ram_payer)
 {
-    accounts to_acnts(_self, owner);
-    auto to = to_acnts.find(value.symbol.name());
+    accounts to_acnts(_self, owner.value);
+    auto to = to_acnts.find(value.symbol.code().raw());
     if (to == to_acnts.end())
     {
         to_acnts.emplace(ram_payer, [&](auto &a) {
@@ -532,10 +530,10 @@ void instrument::add_balance(account_name owner, asset value, account_name ram_p
     }
     else
     {
-        to_acnts.modify(to, 0, [&](auto &a) {
+        to_acnts.modify(to, same_payer, [&](auto &a) {
             a.balance += value;
         });
     }
 }
 
-EOSIO_ABI(instrument, (transfer)(mint)(checkright)(createinst)(update)(revoke)(burn)(create)(issue))
+EOSIO_DISPATCH(instrument, (transfer)(mint)(checkright)(createinst)(update)(revoke)(burn)(create)(issue))

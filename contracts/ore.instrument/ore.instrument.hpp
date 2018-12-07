@@ -7,16 +7,16 @@
 #include "eosiolib/eosio.hpp"
 #include "eosiolib/asset.hpp"
 #include "eosiolib/transaction.hpp"
+#include "eosiolib/time.hpp"
 #include "../ore.rights_registry/ore.rights_registry.hpp"
 
 using namespace eosio;
 using namespace std;
 
-class instrument : public eosio::contract
+class [[eosio::contract("ore.instrument")]] instrument : public eosio::contract
 {
   public:
-    instrument(name self)
-        : contract(self), _account(_self, _self), _tokens(_self, _self) {}
+    instrument( name receiver, name code, datastream<const char*> ds): contract(receiver, code, ds), _account(receiver, receiver.value), _tokens(receiver, receiver.value) {}
 
     struct instrument_data
     {
@@ -35,8 +35,7 @@ class instrument : public eosio::contract
         uint8_t mutability; // 0- immutable, 1- only datesi 2- all
     };
 
-    //@abi table tokens i64
-    struct token
+    TABLE token
     {
         //721 standard properties
         uint64_t id;
@@ -54,31 +53,33 @@ class instrument : public eosio::contract
         uint64_t class_hash;
 
         uint64_t primary_key() const { return id; }
-        uint64_t by_owner() const { return owner; }
+        uint64_t by_owner() const { return owner.value; }
         uint64_t by_template() const { return template_hash; }
         uint64_t by_class() const { return class_hash; }
 
         EOSLIB_SERIALIZE(token, (id)(owner)(minted_by)(minted_at)(instrument)(revoked)(start_time)(end_time)(template_hash)(class_hash))
     };
 
-    eosio::multi_index<N(tokens), token,
-                       indexed_by<N(owner), const_mem_fun<token, uint64_t, &token::by_owner>>,
-                       indexed_by<N(template_hash), const_mem_fun<token, uint64_t, &token::by_template>>,
-                       indexed_by<N(class_hash), const_mem_fun<token, uint64_t, &token::by_class>>>
-        _tokens;
+    typedef eosio::multi_index<"tokens"_n, token,
+                       indexed_by<"owner"_n, const_mem_fun<token, uint64_t, &token::by_owner>>,
+                       indexed_by<"templatehash"_n, const_mem_fun<token, uint64_t, &token::by_template>>,
+                       indexed_by<"classhash"_n, const_mem_fun<token, uint64_t, &token::by_class>>
+            >tokenindex;
 
-    //@abi table account i64
-    struct accountdata
+    tokenindex _tokens;
+    
+    TABLE accountdata
     {
         name owner;
         uint64_t balance;
         vector<uint64_t> instruments;
-        uint64_t primary_key() const { return owner; }
+        uint64_t primary_key() const { return owner.value; }
         EOSLIB_SERIALIZE(accountdata, (owner)(balance)(instruments))
     };
 
-    eosio::multi_index<N(account), accountdata> _account;
+    typedef eosio::multi_index<"account"_n, accountdata> accountindex;
 
+    accountindex _account;
     // NOTE: Uncomment and use in future if required
     // Schema for allowance feature like in ERC-721
     //@abi table allowances i64
@@ -95,26 +96,24 @@ class instrument : public eosio::contract
     // typedef eosio::multi_index<N(allowances), allowancedata> allowances;
 
   private:
-    //@abi table accounts i64
-    struct account
+    TABLE accountbalance
     {
         asset balance;
 
-        uint64_t primary_key() const { return balance.symbol.name(); }
+        uint64_t primary_key() const { return balance.symbol.code().raw(); }
     };
 
-    //@abi table stat i64
-    struct currencystat
+    TABLE currencystat
     {
         asset supply;
         asset max_supply;
         name issuer;
 
-        uint64_t primary_key() const { return supply.symbol.name(); }
+        uint64_t primary_key() const { return supply.symbol.code().raw(); }
     };
 
-    typedef eosio::multi_index<N(accounts), account> accounts;
-    typedef eosio::multi_index<N(stat), currencystat> stats;
+    typedef eosio::multi_index<"accounts"_n, accountbalance> accounts;
+    typedef eosio::multi_index<"stat"_n, currencystat> stats;
 
     void sub_balance(name owner, asset value);
     void sub_balance_from(name sender, name owner, asset value);
@@ -137,16 +136,16 @@ class instrument : public eosio::contract
     }
 
     //actions
-    void approve(name from, name to, uint64_t token_id);
-    void mint(name minter, name owner, instrument_data instrument, uint64_t start_time, uint64_t end_time, uint64_t instrumentId);
-    void checkright(name minter, name issuer, string rightname, uint64_t deferred_transaction_id);
-    void update(name updater, string instrument_template, instrument_data instrument, uint64_t instrument_id, uint64_t start_time, uint64_t end_time);
-    void transfer(name sender, name to, uint64_t token_id);
-    void revoke(name revoker, uint64_t token_id);
-    void burn(name burner, uint64_t token_id);
-    void create(name issuer, asset maximum_supply);
-    void createinst(name minter, name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time);
-    void issue(name to, asset quantity, string memo);
+    ACTION approve(name from, name to, uint64_t token_id);
+    ACTION mint(name minter, name owner, instrument_data instrument, uint64_t start_time, uint64_t end_time, uint64_t instrumentId);
+    ACTION checkright(name minter, name issuer, string rightname, uint64_t deferred_transaction_id);
+    ACTION update(name updater, string instrument_template, instrument_data instrument, uint64_t instrument_id, uint64_t start_time, uint64_t end_time);
+    ACTION transfer(name sender, name to, uint64_t token_id);
+    ACTION revoke(name revoker, uint64_t token_id);
+    ACTION burn(name burner, uint64_t token_id);
+    ACTION create(name issuer, asset maximum_supply);
+    ACTION createinst(name minter, name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time);
+    ACTION issue(name to, asset quantity, string memo);
 };
 
 instrument::token instrument::find_token_by_id(uint64_t id)
@@ -181,7 +180,7 @@ bool instrument::isToken(uint64_t id)
 
 instrument::token instrument::find_token_by_template(string instrument_template)
 {
-    auto hashtable = _tokens.get_index<N(template_hash)>();
+    auto hashtable = _tokens.get_index<"templatehash"_n>();
     auto item = hashtable.find(hashStringToInt(instrument_template));
     if (item == hashtable.end())
         eosio_assert(false, "instrument with given template not found");
@@ -200,7 +199,7 @@ instrument::token instrument::find_token_by_template(string instrument_template)
 // Return an account's total balance
 uint64_t instrument::balance_of(name owner)
 {
-    auto account = _account.find(owner);
+    auto account = _account.find(owner.value);
     return account->balance;
 }
 
@@ -232,21 +231,21 @@ bool instrument::_owns(name claimant, uint64_t token_id)
 
 void instrument::transfer_balances(name from, name to, uint64_t instrument_id, int64_t amount)
 {
-    auto fromitr = _account.find(from);
+    auto fromitr = _account.find(from.value);
 
     eosio_assert(fromitr != _account.end(), "Sender account doesn't exists");
     eosio_assert(fromitr->balance > 0, "Sender account's balance is 0");
 
-    _account.modify(fromitr, 0, [&](auto &a) {
+    _account.modify(fromitr, same_payer, [&](auto &a) {
         a.balance -= amount;
         a.instruments.erase(std::remove(a.instruments.begin(), a.instruments.end(), instrument_id), a.instruments.end());
     });
 
-    auto toitr = _account.find(to);
+    auto toitr = _account.find(to.value);
 
     if (toitr != _account.end())
     {
-        _account.modify(toitr, 0, [&](auto &a) {
+        _account.modify(toitr, same_payer, [&](auto &a) {
             a.balance += amount;
             a.instruments.push_back(instrument_id);
         });

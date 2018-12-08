@@ -9,7 +9,6 @@
 #include "eosiolib/print.hpp"
 #include "eosiolib/transaction.hpp"
 #include "eosiolib/time.hpp"
-#include "../ore_utils/ore_utils.hpp"
 #include "../ore.rights_registry/ore.rights_registry.hpp"
 
 using namespace eosio;
@@ -82,9 +81,6 @@ class [[eosio::contract("ore.instrument")]] instrument : public eosio::contract
     typedef eosio::multi_index<"account"_n, accountdata> accountindex;
 
     accountindex _account;
-
-    // ore_utils - a helper library for ore
-    ore_utils ore_util;
 
   private:
     TABLE accountbalance

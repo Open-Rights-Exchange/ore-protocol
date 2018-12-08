@@ -23,31 +23,22 @@ class[[eosio::contract("ore.standard_token")]] token : public contract
 {
   public:
     using contract::contract;
-        //token(name self) : contract(self) {}
 
-    [[eosio::action]] 
-    void create(name issuer, asset maximum_supply);
+    ACTION create(name issuer, asset maximum_supply);
 
-    [[eosio::action]] 
-    void issue(name to, asset quantity, string memo);
+    ACTION issue(name to, asset quantity, string memo);
 
-    [[eosio::action]] 
-    void retire(asset quantity, string memo);
+    ACTION retire(asset quantity, string memo);
 
-    [[eosio::action]] 
-    void transfer(name from, name to, asset quantity, string memo);
+    ACTION transfer(name from, name to, asset quantity, string memo);
 
-    [[eosio::action]] 
-    void approve(name from, name to, asset quantity, string memo);
+    ACTION approve(name from, name to, asset quantity, string memo);
 
-    [[eosio::action]] 
-    void transferfrom(name sender, name from, name to, asset quantity, string memo);
+    ACTION transferfrom(name sender, name from, name to, asset quantity, string memo);
 
-    [[eosio::action]] 
-    void open(name owner, const symbol &symbol, name ram_payer);
+    ACTION open(name owner, const symbol &symbol, name ram_payer);
 
-    [[eosio::action]] 
-    void close(name owner, const symbol &symbol);
+    ACTION close(name owner, const symbol &symbol);
 
     static asset get_supply( name token_contract_account, symbol_code sym_code )
     {
@@ -68,16 +59,14 @@ class[[eosio::contract("ore.standard_token")]] token : public contract
   private:
     inline void set_allowance(name from, name to, asset quantity, bool increment = false);
 
-    //@abi table accounts i64
-    struct [[eosio::table]] account
+    TABLE account
     {
         asset balance;
 
         uint64_t primary_key() const { return balance.symbol.code().raw(); }
     };
     
-    //@abi table stat i64
-    struct [[eosio::table]] currencystat
+    TABLE currencystat
     {
         asset supply;
         asset max_supply;
@@ -86,8 +75,7 @@ class[[eosio::contract("ore.standard_token")]] token : public contract
         uint64_t primary_key() const { return supply.symbol.code().raw(); }
     };
 
-    //@abi table allowances i64
-    struct [[eosio::table]] allowance
+    TABLE allowance
     {
         name to;
         asset quantity;

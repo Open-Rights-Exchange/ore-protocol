@@ -18,7 +18,7 @@
 namespace eosio
 {
 
-void token::create(name issuer,
+ACTION token::create(name issuer,
                    asset maximum_supply)
 {
     require_auth(_self);
@@ -40,7 +40,7 @@ void token::create(name issuer,
 }
 
 // The approve action is called by "from" account to authorize "to" account to call the transferfrom function on it's behalf
-void token::approve(name from, name to, asset quantity, string memo)
+ACTION token::approve(name from, name to, asset quantity, string memo)
 {
     require_auth(from);
 
@@ -52,7 +52,7 @@ void token::approve(name from, name to, asset quantity, string memo)
     set_allowance(from, to, quantity, true);
 }
 
-void token::issue(name to, asset quantity, string memo)
+ACTION token::issue(name to, asset quantity, string memo)
 {
     auto sym = quantity.symbol;
     eosio_assert(sym.is_valid(), "invalid symbol name");
@@ -82,7 +82,7 @@ void token::issue(name to, asset quantity, string memo)
     }
 }
 
-void token::retire(asset quantity, string memo)
+ACTION token::retire(asset quantity, string memo)
 {
     auto sym = quantity.symbol;
     eosio_assert(sym.is_valid(), "invalid symbol name");
@@ -106,7 +106,7 @@ void token::retire(asset quantity, string memo)
     sub_balance(st.issuer, quantity);
 }
 
-void token::transfer(name from,
+ACTION token::transfer(name from,
                      name to,
                      asset quantity,
                      string memo)
@@ -133,7 +133,7 @@ void token::transfer(name from,
 }
 
 // This action is called by the approved "sender" account on behalf of the "from" account to transfer "quantity" to "to" account
-void token::transferfrom(name sender, name from, name to, asset quantity, string memo)
+ACTION token::transferfrom(name sender, name from, name to, asset quantity, string memo)
 {
     require_auth(sender);
 
@@ -198,7 +198,7 @@ void token::add_balance(name owner, asset value, name ram_payer)
     }
 }
 
-void token::open(name owner, const symbol &symbol, name ram_payer)
+ACTION token::open(name owner, const symbol &symbol, name ram_payer)
 {
     require_auth(ram_payer);
 
@@ -218,7 +218,7 @@ void token::open(name owner, const symbol &symbol, name ram_payer)
     }
 }
 
-void token::close(name owner, const symbol &symbol)
+ACTION token::close(name owner, const symbol &symbol)
 {
     require_auth(owner);
     accounts acnts(_self, owner.value);

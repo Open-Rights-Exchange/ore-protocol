@@ -3,6 +3,7 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #pragma once
+#include <string>
 
 #include "eosiolib/eosio.hpp"
 #include "../ore_types/ore_types.hpp"

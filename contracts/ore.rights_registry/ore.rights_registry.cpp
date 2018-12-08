@@ -19,16 +19,20 @@ ACTION rights_registry::upsertright(name owner, string &right_name, vector<ore_t
             end.issuer_whitelist = issuer_whitelist;
         });
 
-        print("emplaces");
+        print("action:upsertright Right: " + right_name + " added:" + " by: " + owner.to_string() + "\n");
+
     }
     else
     {
-        eosio_assert(itr->owner == owner, "You are not the issuer of the existing right name. Update canceled!");
+        string msg = "The account " + owner.to_string() + " is not the owner of the right " + right_name + " and cannot modify it.";
+        eosio_assert(itr->owner == owner, msg.c_str());
+
         _rights.modify(itr, owner, [&](auto &end) {
             end.urls = urls;
             end.issuer_whitelist = issuer_whitelist;
         });
-        print("modified");
+
+        print("action:upsertright Right: " + right_name + " modified by: " + owner.to_string() + "\n");
     }
 }
 
@@ -38,8 +42,9 @@ ACTION rights_registry::deleteright(name owner, string &right_name)
 
     auto itr = _rights.find(hashStr(right_name));
 
-    eosio_assert(itr != _rights.end(), "There is no right with that name");
-  
+    string msg = "The right " + right_name + " doesn't exist ";
+
+    eosio_assert(itr != _rights.end(), msg.c_str());
     _rights.erase(itr);
 }
 

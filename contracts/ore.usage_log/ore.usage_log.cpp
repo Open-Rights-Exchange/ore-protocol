@@ -2,6 +2,7 @@
 #include <eosiolib/asset.hpp>
 #include <eosiolib/time.hpp>
 #include <chrono>
+#include <string>
 
 using namespace eosio;
 using namespace std;
@@ -23,6 +24,9 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
             a.token_hash = hashStr(token_hash);
             a.timestamp = timestamp;
         });
+
+        print("action:createlog Log created for instrument id : " + to_string(instrument_id) + " and right name " + right_name + "\n");
+
     }
 
     // TODO: require authority of the reconciler
@@ -31,9 +35,10 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
     {
         auto itr = _logs.find(hashStr(token_hash));
 
-        eosio_assert(itr != _logs.end(), "No log exist for the given pair or right and instrument");
+        string msg = "No log exist for the given pair of instrument id " + to_string(instrument_id) + " and access token hash " + token_hash + "\n";
+        eosio_assert(itr != _logs.end(),  msg.c_str());
 
-        print("token hash", itr->token_hash);
+        print("action:deletelog Log deleted for instrument id : " + to_string(instrument_id) + " and access token hash" + token_hash + "\n");
 
         _logs.erase(itr);
     }
@@ -64,6 +69,9 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
                 a.total_cpu += cpu;
             });
         }
+
+        print("action:updatecount Call count updated for instrument id : " + to_string(instrument_id) + " and right name " + right_name + "\n");
+
     }
 
   private:

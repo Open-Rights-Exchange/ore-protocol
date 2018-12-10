@@ -19,7 +19,7 @@ cd ../ore.standard_token && mkdir build
 eosiocpp -g build/ore.standard_token.wast ore.standard_token.cpp
 eosiocpp -o build/ore.standard_token.abi ore.standard_token.cpp
 
-cd ../tests
+cd ../../tests
 
 python3 standard_token.py
 python3 rights_registry.py

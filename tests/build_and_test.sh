@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/Workspace/testeosfactory/contracts
+cd ~/ore-protocol/contracts
 
 cd ore.instrument && mkdir build
 

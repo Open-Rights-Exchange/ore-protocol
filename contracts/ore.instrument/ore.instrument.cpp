@@ -65,7 +65,7 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
         transaction create_instrument{};
 
         // create an unique id for the deferred transaction
-        uint64_t create_transaction_id = now();
+        uint64_t create_transaction_id = instrumentId;
 
         // Adding createinst action to the deferred transaction to add the new instrument to the tokens table
         create_instrument.actions.emplace_back(
@@ -79,7 +79,7 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
                             create_transaction_id));
 
         // send deferred transaction
-        create_instrument.send(create_transaction_id, minter);
+        create_instrument.send(instrumentId, minter);
     }
     else
     {
@@ -112,7 +112,7 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
                             end_time));
 
         // send deferred transaction
-        deferred_instrument.send(deferred_trx_id, minter);
+        deferred_instrument.send(instrumentId, minter);
     }
 }
 
@@ -161,6 +161,34 @@ void instrument::createinst(account_name minter, account_name owner, uint64_t in
     // transfer 1 OREINST from the issuer account for OREINST to the owner account of instrument
     sub_balance(_self, asset(10000, symbol_type(S(4, OREINST))));
     add_balance(owner, asset(10000, symbol_type(S(4, OREINST))), _self);
+}
+
+void instrument::updateinst(account_name updater, account_name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time)
+{
+    require_auth(_self);
+    auto accountitr = _account.find(owner);
+
+    auto tokenitr = _tokens.find(instrumentId);
+
+    // writing to tokens table
+    _tokens.modify(tokenitr, 0, [&](auto &a) {
+        a.id = instrumentId;
+        a.owner = owner;
+        a.minted_by = a.minted_by;
+        a.minted_at = time(0);
+        a.instrument = instrument;
+        a.revoked = false;
+        a.start_time = start_time;
+        a.end_time = end_time;
+        a.template_hash = hashStringToInt(instrument.instrument_template);
+        a.class_hash = hashStringToInt(instrument.instrument_class);
+    });
+
+    print("minter", name{updater});
+
+    print("action:update instrument:", instrumentId, " to:", name{owner}, "\n");
+
+    eosio_assert(is_account(owner), "to account does not exist");
 }
 
 void instrument::checkright(account_name minter, account_name issuer, string rightname, uint64_t deferred_transaction_id = 0)
@@ -280,42 +308,33 @@ void instrument::update(account_name updater, string instrument_template, instru
         item.instrument.encrypted_by = instrument.encrypted_by;
         item.instrument.mutability = instrument.mutability;
 
-        // Checking if the issuer is the owner of the rights
-        for (int i = 0; i < instrument.rights.size(); i++)
+        transaction deferred_instrument{};
+
+        uint64_t deferred_trx_id = instrument_id;
+
+        for (int i = 0; i < item.instrument.rights.size(); i++)
         {
-            auto rightitr = rights_contract.find_right_by_name(instrument.rights[i].right_name);
-            if (rightitr.owner == 0)
-                eosio_assert(false, "right doesn't exist");
-
-            if (rightitr.owner != instrument.issuer)
-            {
-                auto updaterOwnsRight = rightitr.owner == updater;
-
-                auto positionInWhitelist = std::find(rightitr.issuer_whitelist.begin(), rightitr.issuer_whitelist.end(), updater);
-                auto updaterWhitelistedForRight = positionInWhitelist != rightitr.issuer_whitelist.end();
-
-                //check if updater has to authorization over the rights
-                if (positionInWhitelist == rightitr.issuer_whitelist.end())
-                {
-                    eosio_assert((updaterOwnsRight), "updater doesn't own the right and is not on issuer's whitelist");
-                }
-            }
+            deferred_instrument.actions.emplace_back(
+                permission_level{N(instr.ore), N(active)}, _self, N(checkright),
+                std::make_tuple(
+                    updater,
+                    instrument.issuer,
+                    instrument.rights[i].right_name,
+                    deferred_trx_id));
         }
 
-        auto tokenitr = _tokens.find(item.id);
-        // update the instrument token in the tokens table
-        _tokens.modify(tokenitr, 0, [&](auto &a) {
-            a.id = item.id;
-            a.owner = item.owner;
-            a.minted_by = updater;
-            a.minted_at = time(0);
-            a.instrument = item.instrument;
-            a.revoked = false;
-            a.start_time = new_start;
-            a.end_time = new_end;
-            a.template_hash = hashStringToInt(instrument.instrument_template);
-            a.class_hash = hashStringToInt(instrument.instrument_class);
-        });
+        // Adding createinst action to the deferred transaction to add the new instrument to the tokens table
+        deferred_instrument.actions.emplace_back(
+            permission_level{N(instr.ore), N(active)}, _self, N(updateinst),
+            std::make_tuple(updater,
+                            item.owner,
+                            instrument_id,
+                            instrument,
+                            start_time,
+                            end_time));
+
+        // send deferred transaction
+        deferred_instrument.send(deferred_trx_id, updater);
     }
 
     print("updater", name{updater});
@@ -538,4 +557,4 @@ void instrument::add_balance(account_name owner, asset value, account_name ram_p
     }
 }
 
-EOSIO_ABI(instrument, (transfer)(mint)(checkright)(createinst)(update)(revoke)(burn)(create)(issue))
+EOSIO_ABI(instrument, (transfer)(mint)(checkright)(createinst)(updateinst)(update)(revoke)(burn)(create)(issue))

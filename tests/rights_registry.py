@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
         ''')
 
         create_account("right", master)
-        right_contract = Contract(right, "ore.rights_registry")
+        right_contract = Contract(right, "/root/ore-protocol/contracts/ore.rights_registry")
         right_contract.build()
         right_contract.deploy()
 

@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
         ''')
 
         create_account("usage", master)
-        usage_contract = Contract(usage, "ore.usage_log")
+        usage_contract = Contract(usage, "/root/ore-protocol/contracts/ore.usage_log")
         usage_contract.build()
         usage_contract.deploy()
 

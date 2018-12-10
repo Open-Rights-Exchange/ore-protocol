@@ -79,7 +79,7 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
                             create_transaction_id));
 
         // send deferred transaction
-        create_instrument.send(instrumentId, minter);
+        create_instrument.send(create_transaction_id, minter);
     }
     else
     {
@@ -87,7 +87,7 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
         transaction deferred_instrument{};
 
         // create an unique id for the deferred transaction
-        uint64_t deferred_trx_id = now();
+        uint64_t deferred_trx_id = instrumentId;
 
         // checking if the issuer is the owner of the rights
         for (int i = 0; i < instrument.rights.size(); i++)
@@ -112,7 +112,7 @@ void instrument::mint(account_name minter, account_name owner, instrument_data i
                             end_time));
 
         // send deferred transaction
-        deferred_instrument.send(instrumentId, minter);
+        deferred_instrument.send(deferred_trx_id, minter);
     }
 }
 
@@ -310,7 +310,7 @@ void instrument::update(account_name updater, string instrument_template, instru
 
         transaction deferred_instrument{};
 
-        uint64_t deferred_trx_id = instrument_id;
+        uint64_t deferred_trx_id = item.id;
 
         for (int i = 0; i < item.instrument.rights.size(); i++)
         {
@@ -334,7 +334,7 @@ void instrument::update(account_name updater, string instrument_template, instru
                             end_time));
 
         // send deferred transaction
-        deferred_instrument.send(deferred_trx_id, updater);
+        deferred_instrument.send(deferred_trx_id, _self);
     }
 
     print("updater", name{updater});

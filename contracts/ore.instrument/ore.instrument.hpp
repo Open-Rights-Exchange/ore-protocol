@@ -146,6 +146,7 @@ class instrument : public eosio::contract
     void burn(account_name burner, uint64_t token_id);
     void create(account_name issuer, asset maximum_supply);
     void createinst(account_name minter, account_name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time);
+    void updateinst(account_name updater, account_name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time);
     void issue(account_name to, asset quantity, string memo);
 };
 

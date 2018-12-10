@@ -35,7 +35,10 @@ jobs:
       - run:
           name: run tests
           command: |
-            tests/build_and_test.sh
+            python3 tests/standard_token.py
+            python3 tests/rights_registry.py
+            python3 tests/instrument.py
+            python3 tests/usage_log.py
 
       - store_artifacts:
           path: test-reports

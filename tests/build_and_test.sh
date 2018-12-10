@@ -18,10 +18,3 @@ eosiocpp -o build/ore.usage_log.abi ore.usage_log.cpp
 cd ../ore.standard_token && mkdir build
 eosiocpp -g build/ore.standard_token.wast ore.standard_token.cpp
 eosiocpp -o build/ore.standard_token.abi ore.standard_token.cpp
-
-cd ../../tests
-
-python3 standard_token.py
-python3 rights_registry.py
-python3 instrument.py
-python3 usage_log.py

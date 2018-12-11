@@ -135,8 +135,8 @@ ACTION instrument::mint(name minter, name owner, instrument_data instrument,
 }
 
 /*
-    createinst creates a row in the instruments table
-    This is called by the mint action - as the last step in the list of deferred transactions
+    createinst creates a row in the instruments table or modifies an already existing row in the instrument table for the given instrument id
+    This is called by the mint/update action - as the last step in the list of deferred transactions
     This can only be called within the instrument contract (requires _self for instr.ore) 
 */
 ACTION instrument::createinst(name minter, name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time)
@@ -156,31 +156,52 @@ ACTION instrument::createinst(name minter, name owner, uint64_t instrumentId, in
         accountitr = _account.find(owner.value);
     }
 
-    // all instruments are stored in the tokens table
-    _tokens.emplace(_self, [&](auto &a) {
-        a.id = instrumentId;
-        a.owner = owner;
-        a.minted_by = minter;
-        a.minted_at = now();;
-        a.instrument = instrument;
-        a.revoked = false;
-        a.start_time = start_time;
-        a.end_time = end_time;
-        a.template_hash = hashStringToInt(instrument.instrument_template);
-        a.class_hash = hashStringToInt(instrument.instrument_class);
-    });
+    auto tokenitr = _tokens.find(instrumentId);
 
-    // increasing the account balance (total token count)
-    _account.modify(accountitr, same_payer, [&](auto &a) {
-        a.balance++;
-        a.instruments.push_back(instrumentId);
-    });
+    // if there is no existing instrument with the input instrument id 
+    if(tokenitr == _tokens.end()){
+        // all instruments are stored in the tokens table
+        _tokens.emplace(_self, [&](auto &a) {
+            a.id = instrumentId;
+            a.owner = owner;
+            a.minted_by = minter;
+            a.minted_at = now();;
+            a.instrument = instrument;
+            a.revoked = false;
+            a.start_time = start_time;
+            a.end_time = end_time;
+            a.template_hash = hashStringToInt(instrument.instrument_template);
+            a.class_hash = hashStringToInt(instrument.instrument_class);
+        });
 
-    print("action:mint Created new instrument: type: " + instrument.instrument_class + " id: " + to_string(instrumentId) + " for: " + owner.to_string() + "\n");
+        // increasing the account balance (total token count)
+        _account.modify(accountitr, same_payer, [&](auto &a) {
+            a.balance++;
+            a.instruments.push_back(instrumentId);
+        });
 
-    // transfer 1 OREINST from the issuer account for OREINST to the owner account of instrument
-    sub_balance(_self, asset(10000, symbol(symbol_code("OREINST"),4)));
-    add_balance(owner, asset(10000, symbol(symbol_code("OREINST"),4)), _self);
+        print("action:mint Created new instrument: type: " + instrument.instrument_class + " id: " + to_string(instrumentId) + " for: " + owner.to_string() + "\n");
+
+        // transfer 1 OREINST from the issuer account for OREINST to the owner account of instrument
+        sub_balance(_self, asset(10000, symbol(symbol_code("OREINST"),4)));
+        add_balance(owner, asset(10000, symbol(symbol_code("OREINST"),4)), _self);
+    } else {
+       // update an already existing instrument
+        _tokens.modify(tokenitr, same_payer, [&](auto &a) {
+            a.id = instrumentId;
+            a.owner = owner;
+            a.minted_by = a.minted_by;
+            a.minted_at = now();
+            a.instrument = instrument;
+            a.revoked = false;
+            a.start_time = start_time;
+            a.end_time = end_time;
+            a.template_hash = hashStringToInt(instrument.instrument_template);
+            a.class_hash = hashStringToInt(instrument.instrument_class);
+        });
+
+        print("action:update Updated instrument: type: " + instrument.instrument_class + " id: " + to_string(instrumentId) + " for: " + owner.to_string() + "\n");
+    }
 }
 
 /*
@@ -252,11 +273,11 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
     the instrument token gets updated depending on the mutabiility
     mutability = 0 - completely immutable
     mutability = 1 - start_time and/or end_time can be updated
-    mutability = 2 - everything mutable except the owner can't be updated
+    mutability = 2 - everything mutable except the owner can't be updated (calls createinst action as a deferred transaction in this case to update instrument )
 */
 ACTION instrument::update(name updater, string instrument_template, instrument_data instrument = {},
                         uint64_t instrument_id = 0, uint64_t start_time = 0, uint64_t end_time = 0)
-{
+{ 
     require_auth(updater);
     uint64_t new_start;
     uint64_t new_end;
@@ -306,11 +327,13 @@ ACTION instrument::update(name updater, string instrument_template, instrument_d
     // mutability = 1 - update dates
     if (item.instrument.mutability == 1)
     {
-        // update the instrument token in the tokens table
+        // update the instrument token in the tokens table 
         _tokens.modify(tokenitr, same_payer, [&](auto &a) {
             a.start_time = new_start;
             a.end_time = new_end;
         });
+
+        print("action:update Updated instrument: type: " + item.instrument.instrument_class + " id: " + to_string(item.id) + " for: " + item.owner.to_string() + "\n");
     }
 
     // mutability = 2 - update anything
@@ -327,45 +350,34 @@ ACTION instrument::update(name updater, string instrument_template, instrument_d
         item.instrument.encrypted_by = instrument.encrypted_by;
         item.instrument.mutability = instrument.mutability;
 
-        // Checking if the issuer is the owner of the rights
-        for (int i = 0; i < instrument.rights.size(); i++)
+        transaction deferred_instrument{};
+
+        uint64_t deferred_trx_id = item.id;
+
+        for (int i = 0; i < item.instrument.rights.size(); i++)
         {
-            auto rightitr = rights_contract.find_right_by_name(instrument.rights[i].right_name);
-            if (rightitr.owner.value == 0)
-                eosio_assert(false, "right doesn't exist");
-
-            if (rightitr.owner != instrument.issuer)
-            {
-                auto updaterOwnsRight = rightitr.owner == updater;
-
-                auto positionInWhitelist = std::find(rightitr.issuer_whitelist.begin(), rightitr.issuer_whitelist.end(), updater);
-                auto updaterWhitelistedForRight = positionInWhitelist != rightitr.issuer_whitelist.end();
-
-                //check if updater has the authorization over the rights
-                if (positionInWhitelist == rightitr.issuer_whitelist.end())
-                {
-                    eosio_assert((updaterOwnsRight), "updater doesn't own the right and is not on issuer's whitelist");
-                }
-            }
+            deferred_instrument.actions.emplace_back(
+                permission_level{"instr.ore"_n, "active"_n}, _self, "checkright"_n,
+                std::make_tuple(
+                    updater,
+                    instrument.issuer,
+                    instrument.rights[i].right_name,
+                    deferred_trx_id));
         }
 
-        // update the instrument token in the tokens table
-        auto tokenitr = _tokens.find(item.id);
-        _tokens.modify(tokenitr, same_payer, [&](auto &a) {
-            a.id = item.id;
-            a.owner = item.owner;
-            a.minted_by = updater;
-            a.minted_at = now();
-            a.instrument = item.instrument;
-            a.revoked = false;
-            a.start_time = new_start;
-            a.end_time = new_end;
-            a.template_hash = hashStringToInt(instrument.instrument_template);
-            a.class_hash = hashStringToInt(instrument.instrument_class);
-        });
-    }
+        // Adding createinst action to the deferred transaction to add the new instrument to the tokens table
+        deferred_instrument.actions.emplace_back(
+            permission_level{"instr.ore"_n, "active"_n}, _self, "createinst"_n,
+            std::make_tuple(updater,
+                            item.owner,
+                            instrument_id,
+                            instrument,
+                            start_time,
+                            end_time));
 
-    print("action:update Updated instrument: type: " + instrument.instrument_class + " id: " + to_string(instrument_id) + " by: " + updater.to_string() + "\n");
+        // send deferred transaction
+        deferred_instrument.send(deferred_trx_id, _self);
+    }
 }
 
 /* 

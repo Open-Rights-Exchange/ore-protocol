@@ -132,6 +132,7 @@ class [[eosio::contract("ore.instrument")]] instrument : public eosio::contract
     ACTION burn(name burner, uint64_t token_id);
     ACTION create(name issuer, asset maximum_supply);
     ACTION createinst(name minter, name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time);
+    ACTION updateinst(name updater, name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time);
     ACTION issue(name to, asset quantity, string memo);
 };
 

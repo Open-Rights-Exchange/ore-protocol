@@ -188,7 +188,6 @@ ACTION instrument::createinst(name minter, name owner, uint64_t instrumentId, in
     This is called by the update action - as the last step in the list of deferred transactions
     This can only be called within the instrument contract (requires _self for instr.ore) 
 */
-
 ACTION instrument::updateinst(name updater, name owner, uint64_t instrumentId, instrument_data instrument, uint64_t start_time, uint64_t end_time)
 {
     require_auth(_self);
@@ -201,7 +200,7 @@ ACTION instrument::updateinst(name updater, name owner, uint64_t instrumentId, i
         a.id = instrumentId;
         a.owner = owner;
         a.minted_by = a.minted_by;
-        a.minted_at = time(0);
+        a.minted_at = now();
         a.instrument = instrument;
         a.revoked = false;
         a.start_time = start_time;
@@ -229,7 +228,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
 
     string msg;
 
-    rights_registry rights_contract(_self,_code,_ds);
+    rights_registry rights_contract("rights.ore"_n,"rights.ore"_n,_ds);
 
     // check that right exists in the rights registry
     auto rightitr = rights_contract.find_right_by_name(rightname);
@@ -290,7 +289,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
 */
 ACTION instrument::update(name updater, string instrument_template, instrument_data instrument = {},
                         uint64_t instrument_id = 0, uint64_t start_time = 0, uint64_t end_time = 0)
-{
+{ 
     require_auth(updater);
     uint64_t new_start;
     uint64_t new_end;
@@ -313,7 +312,7 @@ ACTION instrument::update(name updater, string instrument_template, instrument_d
 
     eosio_assert(item.instrument.mutability == 1 || item.instrument.mutability == 2, "the instrument to be updated is immutable");
 
-    rights_registry rights_contract = rights_registry(_self,_code,_ds);
+    rights_registry rights_contract("rights.ore"_n,"rights.ore"_n,_ds);
 
     auto tokenitr = _tokens.find(item.id);
 
@@ -368,7 +367,7 @@ ACTION instrument::update(name updater, string instrument_template, instrument_d
         for (int i = 0; i < item.instrument.rights.size(); i++)
         {
             deferred_instrument.actions.emplace_back(
-                permission_level{N(instr.ore), N(active)}, _self, N(checkright),
+                permission_level{"instr.ore"_n, "active"_n}, _self, "checkright"_n,
                 std::make_tuple(
                     updater,
                     instrument.issuer,
@@ -378,7 +377,7 @@ ACTION instrument::update(name updater, string instrument_template, instrument_d
 
         // Adding createinst action to the deferred transaction to add the new instrument to the tokens table
         deferred_instrument.actions.emplace_back(
-            permission_level{N(instr.ore), N(active)}, _self, N(updateinst),
+            permission_level{"instr.ore"_n, "active"_n}, _self, "updateinst"_n,
             std::make_tuple(updater,
                             item.owner,
                             instrument_id,
@@ -590,4 +589,4 @@ void instrument::add_balance(name owner, asset value, name ram_payer)
     }
 }
 
-EOSIO_DISPATCH(instrument, (transfer)(mint)(checkright)(createinst)(update)(revoke)(burn)(create)(issue))
+EOSIO_DISPATCH(instrument, (transfer)(mint)(checkright)(updateinst)(createinst)(update)(revoke)(burn)(create)(issue))

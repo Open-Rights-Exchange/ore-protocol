@@ -306,7 +306,7 @@ class Test(unittest.TestCase):
                     "instrument": {
                         "issuer": app,
                         "instrument_class": "sample_class",
-                        "description": "sample_description",
+                        "description": "different_description",
                         "instrument_template": "",
                         "security_type": "",
                         "parameter_rules": [],

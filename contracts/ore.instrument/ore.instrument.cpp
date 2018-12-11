@@ -279,7 +279,7 @@ ACTION instrument::update(name updater, string instrument_template, instrument_d
 
     eosio_assert(item.instrument.mutability == 1 || item.instrument.mutability == 2, "the instrument to be updated is immutable");
 
-    rights_registry rights_contract = rights_registry(_self,_code,_ds);
+    rights_registry rights_contract("rights.ore"_n,"rights.ore"_n,_ds);
 
     auto tokenitr = _tokens.find(item.id);
 

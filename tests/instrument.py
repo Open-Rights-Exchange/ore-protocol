@@ -198,6 +198,36 @@ class Test(unittest.TestCase):
                     },
                     permission=(app, Permission.ACTIVE))
 
+        with self.assertRaises(Error): # Owner account doesnt exists
+            instr.push_action(
+                    "mint",
+                    {
+                        "minter": app,
+                        "owner": "notexists",
+                        "instrument": {
+                            "issuer": app,
+                            "instrument_class": "sample_class",
+                            "description": "sample_description",
+                            "instrument_template": "",
+                            "security_type": "",
+                            "parameter_rules": [],
+                            "rights": [{
+                                "right_name": "apimarket.manager.licenseApi",
+                                "description": "licenser",
+                                "price_in_cpu": "10",
+                                "additional_url_params": []
+                            }],
+                            "parent_instrument_id": 0,
+                            "data": [],
+                            "encrypted_by": "",
+                            "mutability": 2
+                        },
+                        "start_time": 0,
+                        "end_time": 0,
+                        "instrumentId": 0
+                    },
+                    permission=(app, Permission.ACTIVE))
+
     def test_05(self):
         COMMENT('''
         Create Instrument:
@@ -260,36 +290,6 @@ class Test(unittest.TestCase):
                     "end_time": 0
                 },
                 permission=(instr, Permission.ACTIVE))
-
-        with self.assertRaises(Error): # To account does not exists
-            instr.push_action(
-                "createinst",
-                {
-                    "minter": app,
-                    "owner": "notexist",
-                    "instrumentId": 50,
-                    "instrument": {
-                        "issuer": app,
-                        "instrument_class": "sample_class",
-                        "description": "sample_description",
-                        "instrument_template": "",
-                        "security_type": "",
-                        "parameter_rules": [],
-                        "rights": [{
-                            "right_name": "apimarket.manager.licenseApi",
-                            "description": "licenser",
-                            "price_in_cpu": "10",
-                            "additional_url_params": []
-                        }],
-                        "parent_instrument_id": 0,
-                        "data": [],
-                        "encrypted_by": "",
-                        "mutability": 2
-                    },
-                    "start_time": 0,
-                    "end_time": 0
-                },
-                permission=(instr, Permission.ACTIVE))
         
         
     def test_06(self):
@@ -326,35 +326,6 @@ class Test(unittest.TestCase):
                 },
                 permission=(instr, Permission.ACTIVE))
 
-        with self.assertRaises(Error): # To account does not exists
-            instr.push_action(
-                "updateinst",
-                {
-                    "updater": app,
-                    "owner": "notexist",
-                    "instrumentId": 2,
-                    "instrument": {
-                        "issuer": app,
-                        "instrument_class": "sample_class",
-                        "description": "sample_description",
-                        "instrument_template": "",
-                        "security_type": "",
-                        "parameter_rules": [],
-                        "rights": [{
-                            "right_name": "apimarket.manager.licenseApi",
-                            "description": "licenser",
-                            "price_in_cpu": "10",
-                            "additional_url_params": []
-                        }],
-                        "parent_instrument_id": 0,
-                        "data": [],
-                        "encrypted_by": "",
-                        "mutability": 2
-                    },
-                    "start_time": 0,
-                    "end_time": 0
-                },
-                permission=(instr, Permission.ACTIVE))
 
     def test_07(self):
         COMMENT('''

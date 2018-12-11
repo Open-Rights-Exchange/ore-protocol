@@ -212,8 +212,6 @@ ACTION instrument::updateinst(name updater, name owner, uint64_t instrumentId, i
     print("minter", name{updater});
 
     print("action:update instrument:", instrumentId, " to:", name{owner}, "\n");
-
-    eosio_assert(is_account(owner), "to account does not exist");
 }
 
 /*

@@ -267,7 +267,7 @@ class Test(unittest.TestCase):
                 {
                     "minter": app,
                     "owner": "notexist",
-                    "instrumentId": 4,
+                    "instrumentId": 50,
                     "instrument": {
                         "issuer": app,
                         "instrument_class": "sample_class",

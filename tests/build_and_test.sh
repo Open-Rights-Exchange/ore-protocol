@@ -4,17 +4,17 @@ cd ~/ore-protocol/contracts
 
 cd ore.instrument && mkdir build
 
-eosiocpp -g build/ore.instrument.wast ore.instrument.cpp
-eosiocpp -o build/ore.instrument.abi ore.instrument.cpp
+eosio-cpp ore.instrument.cpp -o build/ore.instrument.wast 
+eosio-abigen ore.instrument.cpp --contract=ore.instrument --output=build/ore.instrument.abi
 
 cd ../ore.rights_registry && mkdir build
-eosiocpp -g build/ore.rights_registry.wast ore.rights_registry.cpp
-eosiocpp -o build/ore.rights_registry.abi ore.rights_registry.cpp
+eosio-cpp ore.rights_registry.cpp -o build/ore.rights_registry.wast 
+eosio-abigen ore.rights_registry.cpp --contract=ore.rights_registry --output=build/ore.rights_registry.abi
 
 cd ../ore.usage_log && mkdir build
-eosiocpp -g build/ore.usage_log.wast ore.usage_log.cpp
-eosiocpp -o build/ore.usage_log.abi ore.usage_log.cpp
+eosio-cpp ore.usage_log.cpp -o build/ore.usage_log.wast 
+eosio-abigen ore.usage_log.cpp --contract=ore.usage_log --output=build/ore.usage_log.abi
 
 cd ../ore.standard_token && mkdir build
-eosiocpp -g build/ore.standard_token.wast ore.standard_token.cpp
-eosiocpp -o build/ore.standard_token.abi ore.standard_token.cpp
+eosio-cpp ore.standard_token.cpp -o build/ore.standard_token.wast 
+eosio-abigen ore.standard_token.cpp --contract=ore.standard_token --output=build/ore.standard_token.abi

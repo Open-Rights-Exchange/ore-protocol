@@ -1,6 +1,6 @@
 #pragma once
 
-#include <eosiolib/types.hpp>
+#include "eosiolib/transaction.hpp"
 #include <string>
 
 using namespace std;
@@ -57,7 +57,7 @@ class ore_types : public contract
     {
         string right_name;
         vector<endpoint_url> urls;
-        vector<account_name> whitelist;
+        vector<name> whitelist;
     };
 
     struct api_voucher_params

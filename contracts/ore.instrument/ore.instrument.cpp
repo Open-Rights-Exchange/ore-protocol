@@ -195,7 +195,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
 
     string msg;
 
-    rights_registry rights_contract(_self,_code,_ds);
+    rights_registry rights_contract("rights.ore"_n,"rights.ore"_n,_ds);
 
     // check that right exists in the rights registry
     auto rightitr = rights_contract.find_right_by_name(rightname);

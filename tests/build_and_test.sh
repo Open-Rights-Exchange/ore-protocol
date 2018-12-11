@@ -3,7 +3,6 @@
 cd ~/ore-protocol/contracts
 
 cd ore.instrument && mkdir build
-
 eosio-cpp ore.instrument.cpp -o build/ore.instrument.wast 
 eosio-abigen ore.instrument.cpp --contract=ore.instrument --output=build/ore.instrument.abi
 

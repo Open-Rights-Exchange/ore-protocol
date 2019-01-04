@@ -188,11 +188,17 @@ void instrument::checkright(account_name minter, account_name issuer, string rig
     if (!minter_owns_right)
     {
         auto position_in_whitelist = std::find(rightitr.issuer_whitelist.begin(), rightitr.issuer_whitelist.end(), minter);
-        eosio_assert(position_in_whitelist != rightitr.issuer_whitelist.end(), "minter neither owns the right nor whitelisted for the right");
+        if (position_in_whitelist == rightitr.issuer_whitelist.end())
+        {
+            if (deferred_transaction_id != 0)
+            {
+                cancel_deferred(deferred_transaction_id);
+            }
+            eosio_assert(false, "minter neither owns the right nor whitelisted for the right");
+        }
     }
 
     bool issuer_owns_right = rightitr.owner == issuer;
-
     if (!issuer_owns_right)
     {
         auto issuer_in_whitelist = std::find(rightitr.issuer_whitelist.begin(), rightitr.issuer_whitelist.end(), issuer);
@@ -202,7 +208,7 @@ void instrument::checkright(account_name minter, account_name issuer, string rig
             {
                 cancel_deferred(deferred_transaction_id);
             }
-            eosio_assert(true, "instrument issuer neither holds the right nor whitelisted for the right");
+            eosio_assert(false, "instrument issuer neither holds the right nor whitelisted for the right");
         }
     }
 }

@@ -300,7 +300,7 @@ class Test(unittest.TestCase):
         instr.push_action(
                 "createinst",
                 {
-                    "updater": app,
+                    "minter": app,
                     "owner": app,
                     "instrumentId": 2,
                     "instrument": {

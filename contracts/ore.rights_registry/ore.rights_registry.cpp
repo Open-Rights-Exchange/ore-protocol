@@ -3,17 +3,15 @@
 using namespace eosio;
 
 // transfer action
-void rights_registry::upsertright(account_name owner, string &right_name, vector<ore_types::endpoint_url> urls, vector<account_name> issuer_whitelist)
+ACTION rights_registry::upsertright(name owner, string &right_name, vector<ore_types::endpoint_url> urls, vector<name> issuer_whitelist)
 {
     require_auth(owner);
 
-    right_registration_index right_registration(_self, _self);
+    auto itr = _rights.find(hashStr(right_name));
 
-    auto itr = right_registration.find(hashStr(right_name));
-
-    if (itr == right_registration.end())
+    if (itr == _rights.end())
     {
-        right_registration.emplace(owner, [&](auto &end) {
+        _rights.emplace(owner, [&](auto &end) {
             end.id = hashStr(right_name);
             end.right_name = right_name;
             end.owner = owner;
@@ -21,30 +19,33 @@ void rights_registry::upsertright(account_name owner, string &right_name, vector
             end.issuer_whitelist = issuer_whitelist;
         });
 
-        print("emplaces");
+        print("action:upsertright Right: " + right_name + " added:" + " by: " + owner.to_string() + "\n");
+
     }
     else
     {
-        eosio_assert(itr->owner == owner, "You are not the issuer of the existing right name. Update canceled!");
-        right_registration.modify(itr, owner, [&](auto &end) {
+        string msg = "The account " + owner.to_string() + " is not the owner of the right " + right_name + " and cannot modify it.";
+        eosio_assert(itr->owner == owner, msg.c_str());
+
+        _rights.modify(itr, owner, [&](auto &end) {
             end.urls = urls;
             end.issuer_whitelist = issuer_whitelist;
         });
-        print("modified");
+
+        print("action:upsertright Right: " + right_name + " modified by: " + owner.to_string() + "\n");
     }
 }
 
-void rights_registry::deleteright(account_name owner, string &right_name)
+ACTION rights_registry::deleteright(name owner, string &right_name)
 {
     require_auth(owner);
 
-    right_registration_index right_registration(_self, _self);
+    auto itr = _rights.find(hashStr(right_name));
 
-    auto itr = right_registration.find(hashStr(right_name));
+    string msg = "The right " + right_name + " doesn't exist ";
 
-    eosio_assert(itr != right_registration.end(), "There is no right with that name");
-  
-    right_registration.erase(itr);
+    eosio_assert(itr != _rights.end(), msg.c_str());
+    _rights.erase(itr);
 }
 
-EOSIO_ABI(rights_registry, (upsertright)(deleteright))
+EOSIO_DISPATCH(rights_registry, (upsertright)(deleteright))

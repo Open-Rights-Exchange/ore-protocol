@@ -1,5 +1,6 @@
 import unittest
 from eosfactory.eosf import *
+import time
 
 verbosity([Verbosity.INFO, Verbosity.OUT, Verbosity.TRACE, Verbosity.DEBUG])
 
@@ -296,7 +297,7 @@ class Test(unittest.TestCase):
         COMMENT('''
         Update Instrument:
         ''')
-
+        time.sleep(3)
         instr.push_action(
                 "createinst",
                 {

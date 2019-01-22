@@ -235,8 +235,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
     bool minter_owns_right = rightitr.owner == minter;
     if (!minter_owns_right)
     {
-        auto position_in_whitelist = std::find(rightitr.issuer_whitelist.begin(), rightitr.issuer_whitelist.end(), minter);
-        
+        auto position_in_whitelist = std::find(rightitr.issuer_whitelist.begin(), rightitr.issuer_whitelist.end(), minter); 
         //if minter is not in whitelist, cancel the entire mint transaction
         if (position_in_whitelist == rightitr.issuer_whitelist.end())
         {
@@ -245,13 +244,12 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
                 cancel_deferred(deferred_transaction_id);
             }
             msg = "Attempt to create instrument with right: " + rightname + " by minter: " + minter.to_string() + " who isn't whitelisted or owner of right";
-            eosio_assert(position_in_whitelist != rightitr.issuer_whitelist.end(), msg.c_str());
+            eosio_assert(false, msg.c_str());
         }
     }
 
     // check if the issuer of the instrument is the owner of the right
     bool issuer_owns_right = rightitr.owner == issuer;
-
     if (!issuer_owns_right)
     {
         auto issuer_in_whitelist = std::find(rightitr.issuer_whitelist.begin(), rightitr.issuer_whitelist.end(), issuer);
@@ -263,7 +261,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
                 cancel_deferred(deferred_transaction_id);
             }
             msg = "Attempt to create instrument with right: " + rightname + " by issuer: " + issuer.to_string() + " who isn't whitelisted or owner of right";
-            eosio_assert(issuer_in_whitelist != rightitr.issuer_whitelist.end(), msg.c_str());
+            eosio_assert(false, msg.c_str());
         }
     }
 }

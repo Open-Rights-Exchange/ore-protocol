@@ -298,7 +298,7 @@ class Test(unittest.TestCase):
         ''')
 
         instr.push_action(
-                "updateinst",
+                "createinst",
                 {
                     "updater": app,
                     "owner": app,

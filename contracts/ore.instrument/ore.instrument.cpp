@@ -250,6 +250,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
 
     // check if the issuer of the instrument is the owner of the right
     bool issuer_owns_right = rightitr.owner == issuer;
+
     if (!issuer_owns_right)
     {
         auto issuer_in_whitelist = std::find(rightitr.issuer_whitelist.begin(), rightitr.issuer_whitelist.end(), issuer);

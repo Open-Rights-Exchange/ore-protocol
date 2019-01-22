@@ -63,11 +63,11 @@ class Test(unittest.TestCase):
                 },
                 permission=(app, Permission.ACTIVE))
 
-        with self.assertRaises(Error): #You are not the issuer of the existing right. Update canceled.
+        with self.assertRaises(Error): #You are not the issuer of the existing contract. Update canceled.
             right.push_action(
                     "upsertright",
                     {
-                        "owner": right,
+                        "owner": app,
                         "right_name": "apimarket.manager.licenseApi",
                         "urls": [{
                             "base_right": "",

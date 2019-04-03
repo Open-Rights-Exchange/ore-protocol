@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/API-market/ore-protocol.svg?style=svg)](https://circleci.com/gh/API-market/ore-protocol)
+[![CircleCI](https://circleci.com/gh/API-market/ore-protocol/tree/master.svg?style=svg)](https://circleci.com/gh/API-market/ore-protocol/tree/master)
 # ORE protocol
 
 The ORE Protocol is a blockchain-hosted API that provides a developer-friendly way to define any digital asset (or any physical asset with an online digital representation) and to trade and control access to these protected resources.

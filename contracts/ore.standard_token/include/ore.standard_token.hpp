@@ -19,7 +19,7 @@ namespace eosio
 
 using std::string;
 
-class[[eosio::contract("ore.standard_token")]] token : public contract
+class[[eosio::contract("ore.standard_token")]] oretoken : public contract
 {
   public:
     using contract::contract;
@@ -103,7 +103,7 @@ class[[eosio::contract("ore.standard_token")]] token : public contract
     };
 };
 
-void token::set_allowance(name from, name to, asset quantity, bool increment)
+void oretoken::set_allowance(name from, name to, asset quantity, bool increment)
 {
     auto sym = quantity.symbol.code();
     stats statstable(_self, sym.raw());
@@ -137,7 +137,7 @@ void token::set_allowance(name from, name to, asset quantity, bool increment)
     }
 }
 
-asset token::allowance_of(name from, name to)
+asset oretoken::allowance_of(name from, name to)
 {
     _allowances allowances(_self, from.value);
 

@@ -9,7 +9,7 @@
 #include "eosiolib/print.hpp"
 #include "eosiolib/transaction.hpp"
 #include "eosiolib/time.hpp"
-#include "../ore.rights_registry/ore.rights_registry.hpp"
+#include "ore.rights_registry.hpp"
 
 using namespace eosio;
 using namespace std;
@@ -26,12 +26,12 @@ class [[eosio::contract("ore.instrument")]] instrument : public eosio::contract
         string description;
         string instrument_template;
         string security_type;
-        vector<ore_types::param_type> parameter_rules;
-        vector<ore_types::right> rights;
+        vector<oretypes::param_type> parameter_rules;
+        vector<oretypes::right> rights;
         uint64_t parent_instrument_id;
 
         //example input for data: considerations
-        vector<ore_types::args> data;
+        vector<oretypes::args> data;
         string encrypted_by;
         uint8_t mutability; // 0- immutable, 1- only datesi 2- all
     };
@@ -123,7 +123,6 @@ class [[eosio::contract("ore.instrument")]] instrument : public eosio::contract
     }
 
     //actions
-    ACTION approve(name from, name to, uint64_t token_id);
     ACTION mint(name minter, name owner, instrument_data instrument, uint64_t start_time, uint64_t end_time, uint64_t instrumentId);
     ACTION checkright(name minter, name issuer, string rightname, uint64_t deferred_transaction_id);
     ACTION update(name updater, string instrument_template, instrument_data instrument, uint64_t instrument_id, uint64_t start_time, uint64_t end_time);

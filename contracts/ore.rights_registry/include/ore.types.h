@@ -6,9 +6,7 @@
 using namespace std;
 using namespace eosio;
 
-class ore_types : public contract
-{
-  public:
+namespace oretypes {
     struct args
     {
         string name;
@@ -77,4 +75,4 @@ class ore_types : public contract
         string api_payment_model;
         string api_additional_url_params;
     };
-};
+}

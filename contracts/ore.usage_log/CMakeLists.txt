@@ -1,8 +1,5 @@
-file(GLOB ABI_FILES "*.abi")
-configure_file("${ABI_FILES}" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
+add_contract(ore.usage_log ore.usage_log ${CMAKE_CURRENT_SOURCE_DIR}/src/ore.usage_log.cpp)
 
-add_wast_executable(TARGET ore.usage_log
-  INCLUDE_FOLDERS "${STANDARD_INCLUDE_FOLDERS}"
-  LIBRARIES libc++ libc eosiolib
-  DESTINATION_FOLDER ${CMAKE_CURRENT_BINARY_DIR}
-)
+set_target_properties(ore.usage_log.wasm
+   PROPERTIES
+   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")

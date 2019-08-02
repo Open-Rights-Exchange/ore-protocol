@@ -1,4 +1,4 @@
-#include "ore.instrument.hpp"
+#include "../include/ore.instrument.hpp"
 using namespace eosio;
 
 /*

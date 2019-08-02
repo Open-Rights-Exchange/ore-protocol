@@ -6,7 +6,7 @@
 #include <string>
 
 #include "eosiolib/eosio.hpp"
-#include "../ore_types/ore_types.hpp"
+#include "ore.types.h"
 
 using namespace eosio;
 using namespace std;
@@ -22,7 +22,7 @@ class [[eosio::contract("ore.rights_registry")]] rights_registry : public eosio:
         uint64_t id;
         string right_name;
         name owner;
-        vector<ore_types::endpoint_url> urls;
+        vector<oretypes::endpoint_url> urls;
         vector<name> issuer_whitelist;
 
         uint64_t primary_key() const { return id; }
@@ -35,7 +35,7 @@ class [[eosio::contract("ore.rights_registry")]] rights_registry : public eosio:
   public:
     right_registration_index _rights;
 
-    ACTION upsertright(name owner, string &right_name, vector<ore_types::endpoint_url> urls, vector<name> issuer_whitelist);
+    ACTION upsertright(name owner, string &right_name, vector<oretypes::endpoint_url> urls, vector<name> issuer_whitelist);
     
     ACTION deleteright(name owner, string &right_name);
 

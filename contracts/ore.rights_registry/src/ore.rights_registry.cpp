@@ -1,9 +1,9 @@
-#include "ore.rights_registry.hpp"
+#include "../include/ore.rights_registry.hpp"
 
 using namespace eosio;
 
 // transfer action
-ACTION rights_registry::upsertright(name owner, string &right_name, vector<ore_types::endpoint_url> urls, vector<name> issuer_whitelist)
+ACTION rights_registry::upsertright(name owner, string &right_name, vector<oretypes::endpoint_url> urls, vector<name> issuer_whitelist)
 {
     require_auth(owner);
 

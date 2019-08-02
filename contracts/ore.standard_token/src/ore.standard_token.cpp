@@ -13,13 +13,13 @@
  * in the implementation of the same functions in ore.instrument contract.
  */
 
-#include "ore.standard_token.hpp"
+#include "../include/ore.standard_token.hpp"
 
 namespace eosio
 {
 
-ACTION token::create(name issuer,
-                   asset maximum_supply)
+ACTION oretoken::create(name issuer,
+                        asset maximum_supply)
 {
     require_auth(_self);
 
@@ -40,7 +40,7 @@ ACTION token::create(name issuer,
 }
 
 // The approve action is called by "from" account to authorize "to" account to call the transferfrom function on it's behalf
-ACTION token::approve(name from, name to, asset quantity, string memo)
+ACTION oretoken::approve(name from, name to, asset quantity, string memo)
 {
     require_auth(from);
 
@@ -52,7 +52,7 @@ ACTION token::approve(name from, name to, asset quantity, string memo)
     set_allowance(from, to, quantity, true);
 }
 
-ACTION token::issue(name to, asset quantity, string memo)
+ACTION oretoken::issue(name to, asset quantity, string memo)
 {
     auto sym = quantity.symbol;
     eosio_assert(sym.is_valid(), "invalid symbol name");
@@ -80,9 +80,9 @@ ACTION token::issue(name to, asset quantity, string memo)
     {
         SEND_INLINE_ACTION(*this, transfer, {st.issuer, "active"_n}, {st.issuer, to, quantity, memo});
     }
-}
+} // namespace eosio
 
-ACTION token::retire(asset quantity, string memo)
+ACTION oretoken::retire(asset quantity, string memo)
 {
     auto sym = quantity.symbol;
     eosio_assert(sym.is_valid(), "invalid symbol name");
@@ -106,10 +106,10 @@ ACTION token::retire(asset quantity, string memo)
     sub_balance(st.issuer, quantity);
 }
 
-ACTION token::transfer(name from,
-                     name to,
-                     asset quantity,
-                     string memo)
+ACTION oretoken::transfer(name from,
+                          name to,
+                          asset quantity,
+                          string memo)
 {
     eosio_assert(from != to, "cannot transfer to self");
     require_auth(from);
@@ -133,11 +133,11 @@ ACTION token::transfer(name from,
 }
 
 // This action is called by the approved "sender" account on behalf of the "from" account to transfer "quantity" to "to" account
-ACTION token::transferfrom(name sender, name from, name to, asset quantity, string memo)
+ACTION oretoken::transferfrom(name sender, name from, name to, asset quantity, string memo)
 {
     require_auth(sender);
 
-    auto allowance = token::allowance_of(from, sender);
+    auto allowance = oretoken::allowance_of(from, sender);
 
     print("The approved account ", name{sender});
     print(" is transferring ", quantity);
@@ -153,7 +153,7 @@ ACTION token::transferfrom(name sender, name from, name to, asset quantity, stri
 }
 
 // eosio.token standard sub_balance function
-void token::sub_balance(name owner, asset value)
+void oretoken::sub_balance(name owner, asset value)
 {
     accounts from_acnts(_self, owner.value);
 
@@ -168,7 +168,7 @@ void token::sub_balance(name owner, asset value)
 }
 
 // It is used by transfer_from account to specify the RAM payer as the "sender" account and not the "owner" account as in the sub_balance function
-void token::sub_balance_from(name sender, name owner, asset value)
+void oretoken::sub_balance_from(name sender, name owner, asset value)
 {
     accounts from_acnts(_self, owner.value);
 
@@ -180,7 +180,7 @@ void token::sub_balance_from(name sender, name owner, asset value)
     });
 }
 
-void token::add_balance(name owner, asset value, name ram_payer)
+void oretoken::add_balance(name owner, asset value, name ram_payer)
 {
     accounts to_acnts(_self, owner.value);
     auto to = to_acnts.find(value.symbol.code().raw());
@@ -198,7 +198,7 @@ void token::add_balance(name owner, asset value, name ram_payer)
     }
 }
 
-ACTION token::open(name owner, const symbol &symbol, name ram_payer)
+ACTION oretoken::open(name owner, const symbol &symbol, name ram_payer)
 {
     require_auth(ram_payer);
 
@@ -218,7 +218,7 @@ ACTION token::open(name owner, const symbol &symbol, name ram_payer)
     }
 }
 
-ACTION token::close(name owner, const symbol &symbol)
+ACTION oretoken::close(name owner, const symbol &symbol)
 {
     require_auth(owner);
     accounts acnts(_self, owner.value);
@@ -230,4 +230,4 @@ ACTION token::close(name owner, const symbol &symbol)
 
 } // namespace eosio
 
-EOSIO_DISPATCH( eosio::token, (create)(issue)(transfer)(approve)(transferfrom)(open)(close)(retire))
+EOSIO_DISPATCH(eosio::oretoken, (create)(issue)(transfer)(approve)(transferfrom)(open)(close)(retire))

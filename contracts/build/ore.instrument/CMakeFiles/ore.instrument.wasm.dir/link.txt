@@ -1,0 +1,1 @@
+//usr/local/bin/eosio-ld  CMakeFiles/ore.instrument.wasm.dir/src/ore.instrument.cpp.o -o ore.instrument.wasm 

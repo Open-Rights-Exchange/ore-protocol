@@ -32,7 +32,7 @@ private:
       uint64_t primary_key() const { return pricekey; }
       EOSLIB_SERIALIZE(tierinfo, (pricekey)(createprice))
    };
-
+   // May be erased when incentive is paid to referral account.
    TABLE reflog
    {
       name referral;
@@ -64,8 +64,7 @@ public:
                         public_key &activekey,
                         uint64_t pricekey,
                         name referral );
-   ACTION changetier(name payer, name account, uint64_t pricekey);
-   ACTION depletesys(name account);
+   ACTION chgacctier(name payer, name account, uint64_t pricekey);
 
    orepricetable _prices;
 

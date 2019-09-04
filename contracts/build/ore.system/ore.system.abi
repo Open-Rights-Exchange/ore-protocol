@@ -4,7 +4,7 @@
     "types": [],
     "structs": [
         {
-            "name": "changetier",
+            "name": "chgacctier",
             "base": "",
             "fields": [
                 {
@@ -47,16 +47,6 @@
                 },
                 {
                     "name": "referral",
-                    "type": "name"
-                }
-            ]
-        },
-        {
-            "name": "depletesys",
-            "base": "",
-            "fields": [
-                {
-                    "name": "account",
                     "type": "name"
                 }
             ]
@@ -158,18 +148,13 @@
     ],
     "actions": [
         {
-            "name": "changetier",
-            "type": "changetier",
+            "name": "chgacctier",
+            "type": "chgacctier",
             "ricardian_contract": ""
         },
         {
             "name": "createoreacc",
             "type": "createoreacc",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "depletesys",
-            "type": "depletesys",
             "ricardian_contract": ""
         },
         {

@@ -42,3 +42,7 @@ scripts/scriptout/*
 scripts/importkeys_prod.sh
 scripts/importkeys_staging.sh
 staging_keys
+
+contracts/build
+
+*/build/*

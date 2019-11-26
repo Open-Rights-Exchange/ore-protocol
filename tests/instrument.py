@@ -29,7 +29,6 @@ class Test(unittest.TestCase):
     def setUp(self):
         pass
 
-
     def test_01(self):
 
         create_account("right", master, account_name="rights.ore")

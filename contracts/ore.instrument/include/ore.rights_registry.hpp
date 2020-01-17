@@ -5,7 +5,7 @@
 #pragma once
 #include <string>
 
-#include "eosiolib/eosio.hpp"
+#include "eosio/eosio.hpp"
 #include "ore.types.h"
 
 using namespace eosio;

@@ -4,11 +4,7 @@
 #include <algorithm>
 #include <string>
 
-#include "eosiolib/eosio.hpp"
-#include "eosiolib/asset.hpp"
-#include "eosiolib/print.hpp"
-#include "eosiolib/transaction.hpp"
-#include "eosiolib/time.hpp"
+#include <eosio/asset.hpp>
 #include "ore.rights_registry.hpp"
 
 using namespace eosio;
@@ -139,7 +135,7 @@ instrument::token instrument::find_token_by_id(uint64_t id)
     auto tok = _tokens.find(id);
 
     if (tok == _tokens.end())
-        eosio_assert(false, "token not found");
+        check(false, "token not found");
 
     return token{
         tok->id,
@@ -169,7 +165,7 @@ instrument::token instrument::find_token_by_template(string instrument_template)
     auto hashtable = _tokens.get_index<"templatehash"_n>();
     auto item = hashtable.find(hashStringToInt(instrument_template));
     if (item == hashtable.end())
-        eosio_assert(false, "instrument with given template not found");
+        check(false, "instrument with given template not found");
     return {item->id,
             item->owner,
             item->minted_by,
@@ -219,8 +215,8 @@ void instrument::transfer_balances(name from, name to, uint64_t instrument_id, i
 {
     auto fromitr = _account.find(from.value);
 
-    eosio_assert(fromitr != _account.end(), "Sender account doesn't exists");
-    eosio_assert(fromitr->balance > 0, "Sender account's balance is 0");
+    check(fromitr != _account.end(), "Sender account doesn't exists");
+    check(fromitr->balance > 0, "Sender account's balance is 0");
 
     _account.modify(fromitr, same_payer, [&](auto &a) {
         a.balance -= amount;

@@ -7,22 +7,24 @@
 #IncludeRegexTransform: 
 
 ../ore.system/include/accounts.h
+eosio/crypto.hpp
+-
 
 ../ore.system/include/common.h
-eosiolib/eosio.hpp
+eosio/eosio.hpp
 -
-eosiolib/asset.hpp
+eosio/asset.hpp
 -
 
 ../ore.system/include/ore.system.hpp
-eosiolib/eosio.hpp
+eosio/eosio.hpp
 -
-eosiolib/asset.hpp
+eosio/asset.hpp
 -
-eosiolib/ignore.hpp
+eosio/ignore.hpp
 -
-eosiolib/transaction.hpp
-../ore.system/include/eosiolib/transaction.hpp
+eosio/transaction.hpp
+../ore.system/include/eosio/transaction.hpp
 accounts.h
 ../ore.system/include/accounts.h
 common.h

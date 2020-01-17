@@ -1,7 +1,7 @@
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/asset.hpp>
-#include <eosiolib/ignore.hpp>
-#include "eosiolib/transaction.hpp"
+#include <eosio/eosio.hpp>
+#include <eosio/asset.hpp>
+#include <eosio/ignore.hpp>
+#include "eosio/transaction.hpp"
 #include "accounts.h"
 #include "common.h"
 using namespace eosio;

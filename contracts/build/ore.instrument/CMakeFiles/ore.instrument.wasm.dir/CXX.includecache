@@ -15,30 +15,22 @@ algorithm
 -
 string
 -
-eosiolib/eosio.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/eosio.hpp
-eosiolib/asset.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/asset.hpp
-eosiolib/print.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/print.hpp
-eosiolib/transaction.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/transaction.hpp
-eosiolib/time.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/time.hpp
+eosio/asset.hpp
+-
 ore.rights_registry.hpp
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.rights_registry.hpp
 
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.rights_registry.hpp
 string
 -
-eosiolib/eosio.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/eosio.hpp
+eosio/eosio.hpp
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosio/eosio.hpp
 ore.types.h
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.types.h
 
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.types.h
-eosiolib/transaction.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/transaction.hpp
+eosio/transaction.hpp
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosio/transaction.hpp
 string
 -
 

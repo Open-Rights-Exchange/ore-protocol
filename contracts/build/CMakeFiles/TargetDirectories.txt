@@ -3,9 +3,6 @@
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.system/CMakeFiles/rebuild_cache.dir
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.system/CMakeFiles/edit_cache.dir
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.system/CMakeFiles/ore.system.wasm.dir
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.standard_token/CMakeFiles/rebuild_cache.dir
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.standard_token/CMakeFiles/edit_cache.dir
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.standard_token/CMakeFiles/ore.standard_token.wasm.dir
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.rights_registry/CMakeFiles/rebuild_cache.dir
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.rights_registry/CMakeFiles/edit_cache.dir
 /Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.rights_registry/CMakeFiles/ore.rights_registry.wasm.dir

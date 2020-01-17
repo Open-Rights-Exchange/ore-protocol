@@ -30,7 +30,7 @@ else()
 endif()
 
 add_subdirectory(ore.system)
-add_subdirectory(ore.standard_token)
+#add_subdirectory(ore.standard_token)
 add_subdirectory(ore.rights_registry)
 add_subdirectory(ore.instrument)
 add_subdirectory(ore.usage_log)

@@ -31,6 +31,7 @@
 *.out
 *.app
 build/*
+contracts/build/*
 
 #other
 .DS_Store

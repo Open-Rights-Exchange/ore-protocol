@@ -35,7 +35,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.system/cmake_install.cmake")
-  include("/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.standard_token/cmake_install.cmake")
   include("/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.rights_registry/cmake_install.cmake")
   include("/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.instrument/cmake_install.cmake")
   include("/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.usage_log/cmake_install.cmake")

@@ -1,8 +1,9 @@
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/asset.hpp>
-#include <eosiolib/time.hpp>
 #include <chrono>
 #include <string>
+
+#include <eosio/eosio.hpp>
+#include <eosio/asset.hpp>
+#include <eosio/system.hpp>
 
 using namespace eosio;
 using namespace std;
@@ -36,7 +37,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
         auto itr = _logs.find(hashStr(token_hash));
 
         string msg = "No log exist for the given pair of instrument id " + to_string(instrument_id) + " and access token hash " + token_hash + "\n";
-        eosio_assert(itr != _logs.end(),  msg.c_str());
+        check(itr != _logs.end(),  msg.c_str());
 
         print("action:deletelog Log deleted for instrument id : " + to_string(instrument_id) + " and access token hash" + token_hash + "\n");
 
@@ -56,7 +57,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
             _counts.emplace(_self, [&](auto &a) {
                 a.right_hash = right_hash;
                 a.right_name = right_name;
-                a.last_usage_time = time_point_sec(now());
+                a.last_usage_time = current_time_point().sec_since_epoch();
                 a.total_count = 1;
                 a.total_cpu = cpu;
             });
@@ -64,7 +65,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
         else
         {
             _counts.modify(itr, _self, [&](auto &a) {
-                a.last_usage_time = time_point_sec(now());
+                a.last_usage_time = current_time_point().sec_since_epoch();
                 a.total_count += 1;
                 a.total_cpu += cpu;
             });
@@ -92,7 +93,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
     {
         uint64_t right_hash;
         string right_name;
-        time_point_sec last_usage_time;
+        uint64_t last_usage_time;
         uint64_t total_count;
         asset total_cpu;
         auto primary_key() const { return right_hash; }

@@ -1,4 +1,5 @@
 #pragma once
+#include <eosio/crypto.hpp>
 using namespace eosio;
 namespace accounts {
 

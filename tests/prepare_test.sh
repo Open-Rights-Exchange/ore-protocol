@@ -14,6 +14,6 @@ cd ../ore.usage_log && mkdir build
 cp ~/ore-protocol/contracts/build/ore.usage_log/ore.usage_log.wasm build/
 cp ~/ore-protocol/contracts/build/ore.usage_log/ore.usage_log.abi build/
 
-cd ../ore.standard_token && mkdir build
-cp ~/ore-protocol/contracts/build/ore.standard_token/ore.standard_token.wasm build/
-cp ~/ore-protocol/contracts/build/ore.standard_token/ore.standard_token.abi build/
+# cd ../ore.standard_token && mkdir build
+# cp ~/ore-protocol/contracts/build/ore.standard_token/ore.standard_token.wasm build/
+# cp ~/ore-protocol/contracts/build/ore.standard_token/ore.standard_token.abi build/

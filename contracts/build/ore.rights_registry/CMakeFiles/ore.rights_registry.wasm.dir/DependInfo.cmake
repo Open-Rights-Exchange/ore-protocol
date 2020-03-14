@@ -4,9 +4,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.rights_registry/src/ore.rights_registry.cpp" "/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/build/ore.rights_registry/CMakeFiles/ore.rights_registry.wasm.dir/src/ore.rights_registry.cpp.o"
+  "/contracts/ore/ore-protocol/contracts/ore.rights_registry/src/ore.rights_registry.cpp" "/contracts/ore/ore-protocol/contracts/build/ore.rights_registry/CMakeFiles/ore.rights_registry.wasm.dir/src/ore.rights_registry.cpp.o"
   )
-set(CMAKE_CXX_COMPILER_ID "AppleClang")
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH

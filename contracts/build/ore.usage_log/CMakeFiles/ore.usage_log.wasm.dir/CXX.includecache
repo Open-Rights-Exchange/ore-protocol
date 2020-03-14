@@ -6,12 +6,12 @@
 
 #IncludeRegexTransform: 
 
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.usage_log/src/ore.usage_log.cpp
-eosiolib/eosio.hpp
+/contracts/ore/ore-protocol/contracts/ore.usage_log/src/ore.usage_log.cpp
+eosio/eosio.hpp
 -
-eosiolib/asset.hpp
+eosio/asset.hpp
 -
-eosiolib/time.hpp
+eosio/system.hpp
 -
 chrono
 -

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.instrument.hpp
+/contracts/ore/ore-protocol/contracts/ore.instrument/include/ore.instrument.hpp
 map
 -
 vector
@@ -15,34 +15,34 @@ algorithm
 -
 string
 -
-eosiolib/eosio.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/eosio.hpp
-eosiolib/asset.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/asset.hpp
-eosiolib/print.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/print.hpp
-eosiolib/transaction.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/transaction.hpp
-eosiolib/time.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/time.hpp
+eosio/eosio.hpp
+-
+eosio/asset.hpp
+-
+eosio/print.hpp
+-
+eosio/transaction.hpp
+-
+eosio/time.hpp
+-
 ore.rights_registry.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.rights_registry.hpp
+/contracts/ore/ore-protocol/contracts/ore.instrument/include/ore.rights_registry.hpp
 
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.rights_registry.hpp
+/contracts/ore/ore-protocol/contracts/ore.instrument/include/ore.rights_registry.hpp
 string
 -
-eosiolib/eosio.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/eosio.hpp
+eosio/eosio.hpp
+-
 ore.types.h
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.types.h
+/contracts/ore/ore-protocol/contracts/ore.instrument/include/ore.types.h
 
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.types.h
-eosiolib/transaction.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/eosiolib/transaction.hpp
+/contracts/ore/ore-protocol/contracts/ore.instrument/include/ore.types.h
+eosio/transaction.hpp
+-
 string
 -
 
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/src/ore.instrument.cpp
+/contracts/ore/ore-protocol/contracts/ore.instrument/src/ore.instrument.cpp
 ../include/ore.instrument.hpp
-/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.instrument/include/ore.instrument.hpp
+/contracts/ore/ore-protocol/contracts/ore.instrument/include/ore.instrument.hpp
 

@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/ore.system.wasm.dir/src/ore.system.cpp.o"
-  "ore.system.wasm"
   "ore.system.wasm.pdb"
+  "ore.system.wasm"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/asset.hpp>
+/*#include <eosiolib/eosio.hpp>
+#include <eosiolib/asset.hpp>*/
 
 using namespace eosio;
 using std::string;
@@ -42,7 +42,7 @@ namespace common {
        RamInfo ramInfo(name("eosio"), name("eosio").value);
        auto ramData = ramInfo.find(S_RAM.raw());
        symbol coreSymbol = core_symbol;
-       eosio_assert(ramData != ramInfo.end(), "Could not get RAM info");
+       check(ramData != ramInfo.end(), "Could not get RAM info");
 
        uint64_t base = ramData->base.balance.amount;
        uint64_t quote = ramData->quote.balance.amount;

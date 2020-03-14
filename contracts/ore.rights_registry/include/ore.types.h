@@ -1,6 +1,6 @@
 #pragma once
 
-#include "eosiolib/transaction.hpp"
+/*#include <eosio/transaction.hpp>*/
 #include <string>
 
 using namespace std;

@@ -4,7 +4,11 @@
 #include <algorithm>
 #include <string>
 
+#include <eosio/eosio.hpp>
 #include <eosio/asset.hpp>
+#include <eosio/print.hpp>
+#include <eosio/transaction.hpp>
+#include <eosio/time.hpp>
 #include "ore.rights_registry.hpp"
 
 using namespace eosio;

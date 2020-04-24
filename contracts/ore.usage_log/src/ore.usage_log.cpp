@@ -1,9 +1,8 @@
-#include <chrono>
-#include <string>
-
 #include <eosio/eosio.hpp>
 #include <eosio/asset.hpp>
 #include <eosio/system.hpp>
+#include <chrono>
+#include <string>
 
 using namespace eosio;
 using namespace std;
@@ -57,7 +56,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
             _counts.emplace(_self, [&](auto &a) {
                 a.right_hash = right_hash;
                 a.right_name = right_name;
-                a.last_usage_time = current_time_point().sec_since_epoch();
+                a.last_usage_time = current_time_point(); //time_point_sec(now());
                 a.total_count = 1;
                 a.total_cpu = cpu;
             });
@@ -65,7 +64,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
         else
         {
             _counts.modify(itr, _self, [&](auto &a) {
-                a.last_usage_time = current_time_point().sec_since_epoch();
+                a.last_usage_time = current_time_point(); //time_point_sec(now());
                 a.total_count += 1;
                 a.total_cpu += cpu;
             });
@@ -93,7 +92,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
     {
         uint64_t right_hash;
         string right_name;
-        uint64_t last_usage_time;
+        time_point last_usage_time;
         uint64_t total_count;
         asset total_cpu;
         auto primary_key() const { return right_hash; }

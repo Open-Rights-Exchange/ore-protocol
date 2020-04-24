@@ -105,13 +105,21 @@ ACTION oresystem::createoreacc(name creator,
         .send();
     }
     
-    action(
+//*** Changed GBT
+/*    action(
         permission_level{creator, "active"_n},
         "eosio.token"_n,
         "transfer"_n,
         make_tuple(creator, ore_lock, priceitr->createprice, std::string("ore lock")))
-        .send();
+        .send();*/
 
+		action(
+        permission_level{creator, "active"_n},
+        "eosio.token"_n,
+        "stake"_n,
+        make_tuple(creator, priceitr->createprice, std::string("ore lock")))
+        .send();
+//***
     accounts::newaccount new_account = accounts::newaccount{
         .creator = creator,
         .name = newname,
@@ -212,22 +220,37 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
         if(newPriceItr->createprice > oldTierItr->createprice) {
             require_auth(payer);
             orePriceDelta = newPriceItr->createprice - oldTierItr->createprice;
-            action(
+//*** Changed GBT
+/*            action(
                 permission_level{payer, "active"_n},
                 "eosio.token"_n,
                 "transfer"_n,
                 make_tuple(payer, ore_lock, orePriceDelta, std::string("ore lock")))
+                .send();*/
+           		action(
+                permission_level{payer, "active"_n},
+                "eosio.token"_n,
+                "stake"_n,
+                make_tuple(payer, orePriceDelta, std::string("ore lock")))
                 .send();
-            
+//***
         } else if (newPriceItr->createprice < oldTierItr->createprice) {
             require_auth(account);
             orePriceDelta = oldTierItr->createprice - newPriceItr->createprice;
-            action(
+//*** Changed GBT
+/*            action(
                 permission_level{ore_lock, "active"_n},
                 "eosio.token"_n,
                 "transfer"_n,
                 make_tuple(ore_lock, account, orePriceDelta, std::string("ore released from lock")))
+                .send();*/
+            	action(
+                permission_level{ore_lock, "active"_n},
+                "eosio.token"_n,
+                "unstake"_n,
+                make_tuple(account, orePriceDelta, std::string("ore released from lock")))
                 .send();
+//***
         }
         _tiers.erase(oldTierItr);
     }

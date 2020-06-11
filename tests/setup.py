@@ -70,60 +70,60 @@ class Test(unittest.TestCase):
         # usage_contract.delete()
 
     def test_02(self):
-        COMMENT('''
-        Create and issue tokens:
-        ''')
+        # COMMENT('''
+        # Create and issue tokens:
+        # ''')
 
-        token.push_action(
-                "create",
-                {
-                    "issuer": token,
-                    "maximum_supply": "100000000.0000 CPU"
-                },
-                permission=(token, Permission.ACTIVE))
+        # token.push_action(
+        #         "create",
+        #         {
+        #             "issuer": token,
+        #             "maximum_supply": "100000000.0000 CPU"
+        #         },
+        #         permission=(token, Permission.ACTIVE))
 
-        token.push_action(
-                "create",
-                {
-                    "issuer": token,
-                    "maximum_supply": "100000000.0000 ORE"
-                },
-                permission=(token, Permission.ACTIVE))
+        # token.push_action(
+        #         "create",
+        #         {
+        #             "issuer": token,
+        #             "maximum_supply": "100000000.0000 ORE"
+        #         },
+        #         permission=(token, Permission.ACTIVE))
 
-        instr.push_action(
-                "create",
-                {
-                    "issuer": instr,
-                    "maximum_supply": "100000000.0000 OREINST"
-                },
-                permission=(instr, Permission.ACTIVE))
+        # instr.push_action(
+        #         "create",
+        #         {
+        #             "issuer": instr,
+        #             "maximum_supply": "100000000.0000 OREINST"
+        #         },
+        #         permission=(instr, Permission.ACTIVE))
 
-        token.push_action(
-                "issue",
-                {
-                    "to": app,
-                    "quantity": "10000000.0000 CPU",
-                    "memo": ""
-                },
-                permission=(token, Permission.ACTIVE))
+        # token.push_action(
+        #         "issue",
+        #         {
+        #             "to": app,
+        #             "quantity": "10000000.0000 CPU",
+        #             "memo": ""
+        #         },
+        #         permission=(token, Permission.ACTIVE))
 
-        token.push_action(
-                "issue",
-                {
-                    "to": app,
-                    "quantity": "10000000.0000 ORE",
-                    "memo": ""
-                },
-                permission=(token, Permission.ACTIVE))
+        # token.push_action(
+        #         "issue",
+        #         {
+        #             "to": app,
+        #             "quantity": "10000000.0000 ORE",
+        #             "memo": ""
+        #         },
+        #         permission=(token, Permission.ACTIVE))
 
-        instr.push_action(
-                "issue",
-                {
-                    "to": instr,
-                    "quantity": "10000000.0000 OREINST",
-                    "memo": ""
-                },
-                permission=(instr, Permission.ACTIVE))
+        # instr.push_action(
+        #         "issue",
+        #         {
+        #             "to": instr,
+        #             "quantity": "10000000.0000 OREINST",
+        #             "memo": ""
+        #         },
+        #         permission=(instr, Permission.ACTIVE))
 
     def test_03(self):
         COMMENT('''

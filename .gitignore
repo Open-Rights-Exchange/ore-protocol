@@ -31,6 +31,7 @@
 *.out
 *.app
 build/*
+contracts/build/*
 
 #other
 .DS_Store
@@ -43,6 +44,6 @@ scripts/importkeys_prod.sh
 scripts/importkeys_staging.sh
 staging_keys
 
-contracts/build
+contracts/build/*
 
 */build/*

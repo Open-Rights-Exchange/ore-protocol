@@ -188,7 +188,7 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             make_tuple(sys_payer, account, cpuNetDelta, asset(0, core_symbol), false))
             .send();
     }
-    else if (newPriceItr->netamount.amount < currentCpu.amount)
+    else if (newPriceItr->netamount.amount < currentNet.amount)
     {
         cpuNetDelta.amount = currentNet.amount - newPriceItr->netamount.amount;
         action(
@@ -198,7 +198,7 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             make_tuple(sys_payer, account, cpuNetDelta, asset(0, core_symbol)))
             .send();
     }
-    if (newPriceItr->rambytes > currentRambytes)
+    if (newPriceItr->rambytes > (currentRambytes + 14))
     {
         ramDelta = newPriceItr->rambytes - currentRambytes;
         action(
@@ -208,7 +208,7 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             make_tuple(sys_payer, account, ramDelta))
             .send();
     }
-    else if (newPriceItr->rambytes < currentRambytes)
+    else if ((newPriceItr->rambytes + 14) < currentRambytes)
     {
         ramDelta = currentRambytes - newPriceItr->rambytes;
         action(
@@ -231,6 +231,25 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             "stake"_n,
             make_tuple(payer, account, newPriceItr->createprice, std::string("ore lock")))
             .send();
+    }
+    else if (oldStaker == name(""))
+    {
+        check(newPriceItr->createprice == oldTierItr->createprice, "This account needs to be migrated first. Call changetier with same tier or same createprice.");
+        action(
+            permission_level{ore_system, "active"_n},
+            "eosio.token"_n,
+            "stake"_n,
+            make_tuple(payer, account, newPriceItr->createprice, std::string("ore lock")))
+            .send();
+        if(ore_lock != payer) {
+            action(
+            permission_level{ore_lock, "active"_n},
+            "eosio.token"_n,
+            "transfer"_n,
+            make_tuple(ore_lock, payer, newPriceItr->createprice, std::string("ore unlocked - (migration)")))
+            .send();
+        }
+        _tiers.erase(oldTierItr);
     }
     else
     {
@@ -305,12 +324,9 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
     oldSysLock.amount = oldTierItr->createprice.amount - currentTotalCost.amount;
     newTotalCost.amount = newRamCost.amount + newPriceItr->netamount.amount + newPriceItr->cpuamount.amount;
     newSysLock.amount = newPriceItr->createprice.amount - newTotalCost.amount;
-    print(newSysLock.amount);
-    print("---");
-    print(oldSysLock.amount);
-    if (newSysLock > oldSysLock)
+
+    if (newSysLock.amount > oldSysLock.amount)
     {
-        print((newSysLock - oldSysLock));
         action(
             permission_level{sys_payer, "active"_n},
             "eosio.token"_n,
@@ -318,9 +334,8 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             make_tuple(sys_payer, sys_lock, asset((newSysLock.amount - oldSysLock.amount), core_symbol), std::string("sys locked")))
             .send();
     }
-    else if (oldSysLock > newSysLock)
+    else if (oldSysLock.amount > newSysLock.amount)
     {
-        print((oldSysLock - newSysLock));
         action(
             permission_level{sys_lock, "active"_n},
             "eosio.token"_n,

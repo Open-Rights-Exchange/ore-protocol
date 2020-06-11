@@ -25,7 +25,7 @@ ACTION rights_registry::upsertright(name owner, string &right_name, vector<orety
     else
     {
         string msg = "The account " + owner.to_string() + " is not the owner of the right " + right_name + " and cannot modify it.";
-        eosio_assert(itr->owner == owner, msg.c_str());
+        check(itr->owner == owner, msg.c_str());
 
         _rights.modify(itr, owner, [&](auto &end) {
             end.urls = urls;
@@ -44,7 +44,7 @@ ACTION rights_registry::deleteright(name owner, string &right_name)
 
     string msg = "The right " + right_name + " doesn't exist ";
 
-    eosio_assert(itr != _rights.end(), msg.c_str());
+    check(itr != _rights.end(), msg.c_str());
     _rights.erase(itr);
 }
 

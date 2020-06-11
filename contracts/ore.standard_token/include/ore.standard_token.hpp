@@ -4,8 +4,8 @@
  */
 #pragma once
 
-#include "eosiolib/asset.hpp"
-#include "eosiolib/eosio.hpp"
+#include "eosio/asset.hpp"
+#include "eosio/eosio.hpp"
 
 #include <string>
 
@@ -109,9 +109,9 @@ void oretoken::set_allowance(name from, name to, asset quantity, bool increment)
     stats statstable(_self, sym.raw());
     const auto &st = statstable.get(sym.raw());
 
-    eosio_assert(quantity.is_valid(), "invalid quantity");
-    eosio_assert(quantity.amount >= 0, "must transfer positive quantity");
-    eosio_assert(quantity.symbol == st.supply.symbol, "symbol precision mismatch");
+    check(quantity.is_valid(), "invalid quantity");
+    check(quantity.amount >= 0, "must transfer positive quantity");
+    check(quantity.symbol == st.supply.symbol, "symbol precision mismatch");
 
     name key = to;
 
@@ -143,7 +143,7 @@ asset oretoken::allowance_of(name from, name to)
 
     auto allowanceitr = allowances.find(to.value);
 
-    eosio_assert(allowanceitr != allowances.end(), "no allowance approved for this account");
+    check(allowanceitr != allowances.end(), "no allowance approved for this account");
 
     return allowanceitr->quantity;
 }

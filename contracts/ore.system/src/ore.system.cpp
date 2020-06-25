@@ -350,6 +350,24 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
     });
 }
 
+ACTION oresystem::createtoken(const name& payer, const asset& maximum_supply) {
+
+    action(
+        permission_level{payer, "active"_n},
+        "eosio.token"_n,
+        "transfer"_n,
+        make_tuple(payer, ore_system, asset(10000, ore_symbol), std::string("create token payment")))
+        .send();
+
+    action(
+        permission_level{ore_system, "active"_n},
+        "apptoken.ore"_n,
+        "create"_n,
+        make_tuple(payer, maximum_supply))
+        .send();
+
+}
+
 // namespace oresystem
 
-EOSIO_DISPATCH(oresystem, (setprice)(createoreacc)(chgacctier))
+EOSIO_DISPATCH(oresystem, (setprice)(createoreacc)(chgacctier)(createtoken))

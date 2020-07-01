@@ -352,11 +352,14 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
 
 ACTION oresystem::createtoken(const name& payer, const asset& maximum_supply) {
 
+    auto priceitr = _prices.find(name("apptoken.ore").value);
+    check(priceitr != _prices.end(), "No price table");
+
     action(
         permission_level{payer, "active"_n},
         "eosio.token"_n,
         "transfer"_n,
-        make_tuple(payer, ore_system, asset(10000, ore_symbol), std::string("create token payment")))
+        make_tuple(payer, ore_system, priceitr->createprice, std::string("create token payment")))
         .send();
 
     action(
@@ -368,6 +371,30 @@ ACTION oresystem::createtoken(const name& payer, const asset& maximum_supply) {
 
 }
 
+ACTION oresystem::tokenprice(asset tokenprice, name tokenkey)
+{
+    require_auth(_self);
+
+    auto priceitr = _prices.find(tokenkey.value);
+
+    if (priceitr == _prices.end())
+    {
+        _prices.emplace(_self, [&](auto &p) {
+            p.key = tokenkey.value;
+            p.createprice = tokenprice;
+            p.rambytes = 0;
+            p.netamount = asset(0, ore_symbol);
+            p.cpuamount = asset(0, ore_symbol);
+        });
+    }
+    else
+    {
+        _prices.modify(priceitr, _self, [&](auto &p) {
+            p.createprice = tokenprice;
+        });
+    }
+}
+
 // namespace oresystem
 
-EOSIO_DISPATCH(oresystem, (setprice)(createoreacc)(chgacctier)(createtoken))
+EOSIO_DISPATCH(oresystem, (setprice)(createoreacc)(chgacctier)(createtoken)(tokenprice))

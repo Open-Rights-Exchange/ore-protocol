@@ -66,6 +66,10 @@ public:
                         name referral );
    ACTION chgacctier(name payer, name account, uint64_t pricekey);
 
+   ACTION createtoken(const name& payer, const asset& maximum_supply);
+
+   ACTION tokenprice(asset tokenprice, name tokenkey);
+
    orepricetable _prices;
 
    typedef eosio::multi_index<"tierinfo"_n, tierinfo> tierinfotable;

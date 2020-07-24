@@ -23,6 +23,18 @@ ACTION apptoken::create( const name&   issuer,
     });
 }
 
+ACTION apptoken::deltoken( const name&   owner,
+                    const symbol&  symbol )
+{
+    require_auth(owner);
+    check( symbol.is_valid(), "invalid symbol name" );
+
+    stats statstable( get_self(), symbol.code().raw() );
+    auto existing = statstable.find( symbol.code().raw() );
+    check( existing != statstable.end(), "token with symbol does not exists" );
+    statstable.erase(existing);
+}
+
 
 ACTION apptoken::issue( const name& to, const asset& quantity, const string& memo )
 {

@@ -32,6 +32,8 @@ public:
           */
    ACTION create(const name &issuer,
                  const asset &maximum_supply);
+   ACTION deltoken( const name&   owner,
+                    const symbol&  symbol );
    ACTION issue(const name &to, const asset &quantity, const string &memo);
    ACTION retire(const asset &quantity, const string &memo);
    ACTION transfer(const name &from,

@@ -169,4 +169,4 @@ ACTION apptoken::close( const name& owner, const symbol& symbol )
 }
 
 
-EOSIO_DISPATCH(apptoken, (create)(issue)(transfer)(open)(close)(retire))
+EOSIO_DISPATCH(apptoken, (create)(deltoken)(issue)(transfer)(open)(close)(retire))

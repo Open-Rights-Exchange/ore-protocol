@@ -70,6 +70,8 @@ public:
 
    ACTION tokenprice(asset tokenprice, name tokenkey);
 
+   ACTION pricecut();
+
    orepricetable _prices;
 
    typedef eosio::multi_index<"tierinfo"_n, tierinfo> tierinfotable;

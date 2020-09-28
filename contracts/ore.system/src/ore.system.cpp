@@ -395,6 +395,22 @@ ACTION oresystem::tokenprice(asset tokenprice, name tokenkey)
     }
 }
 
+ACTION oresystem::pricecut()
+{
+    require_auth("eosio"_n);
+
+    auto priceitr = _prices.begin();
+
+    while(priceitr != _prices.end()) {
+        asset newprice = priceitr->createprice;
+        newprice.amount = newprice.amount * 0.8;
+        _prices.modify(priceitr, _self, [&](auto &p) {
+            p.createprice = newprice;
+        });
+        priceitr++;
+    }
+}
+
 // namespace oresystem
 
-EOSIO_DISPATCH(oresystem, (setprice)(createoreacc)(chgacctier)(createtoken)(tokenprice))
+EOSIO_DISPATCH(oresystem, (setprice)(createoreacc)(chgacctier)(createtoken)(tokenprice)(pricecut))

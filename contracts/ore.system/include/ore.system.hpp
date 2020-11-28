@@ -11,18 +11,27 @@ using namespace common;
 class [[eosio::contract("ore.system")]] oresystem : public contract
 {
 private:
-   TABLE oreprice
+  TABLE prices
+   {
+      name pricename;
+      asset price;
+      uint64_t primary_key() const { return pricename.value; }
+      EOSLIB_SERIALIZE(prices, (pricename)(price))
+   };
+   typedef eosio::multi_index<"pricetable"_n, prices> pricetable;
+
+   TABLE tiers
    {
       uint64_t key;
-      asset createprice;            // newaccount price as ORE
+      uint64_t ramfactor;            // an integer value that represents a float number with 4 decimals ( eg. 10000 = 1.0000)
       uint64_t rambytes;            // initial amount of ram
       asset netamount;              // initial amount of net
       asset cpuamount;              // initial amount of cpu
 
       uint64_t primary_key() const { return key; }
-      EOSLIB_SERIALIZE(oreprice, (key)(createprice)(rambytes)(netamount)(cpuamount))
+      EOSLIB_SERIALIZE(tiers, (key)(ramfactor)(rambytes)(netamount)(cpuamount))
    };
-   typedef eosio::multi_index<"pricetable"_n, oreprice> orepricetable;
+   typedef eosio::multi_index<"tiertable"_n, tiers> tiertable;
 
    TABLE tierinfo
    {
@@ -32,6 +41,7 @@ private:
       uint64_t primary_key() const { return pricekey; }
       EOSLIB_SERIALIZE(tierinfo, (pricekey)(createprice))
    };
+
    // May be erased when incentive is paid to referral account.
    TABLE reflog
    {
@@ -52,27 +62,46 @@ private:
       EOSLIB_SERIALIZE(refstats, (pricekey)(count))
    };
 
+   asset getPrice(name pricename) {
+      auto priceitr = _prices.find(pricename.value);
+      check(priceitr != _prices.end(), "No price found");
+      asset price;
+      float utilization = getRamUtilization();
+      print("utilization!");
+      print(utilization);
+      if(utilization < 0.8 ) {
+         price = priceitr->price;
+      } else {
+         price = priceitr->price;
+         print(price.amount);
+         print("--");
+         print(( 1 - (( utilization - 0.8F ) / 0.2F)));
+         print("-l-");                                   //0.94            0.19 / 0.2
+         price.amount = (uint64_t)(price.amount / ( 1 - (( utilization - 0.8F ) / 0.2F)));
+      }
+      return price;
+   }
+
 public:
    using contract::contract;
    oresystem(name receiver, name code, datastream<const char *> ds)
-       : contract(receiver, code, ds), _prices(receiver, receiver.value) {}
+       : contract(receiver, code, ds), _prices(receiver, receiver.value), _tiers(receiver, receiver.value) {}
 
-   ACTION setprice(asset createprice, uint64_t rambytes, asset netamount, asset cpuamount, uint64_t pricekey);
+   ACTION migrate();
+   ACTION setprice(name pricename, asset price);
+   ACTION settier(uint64_t key, uint64_t ramfactor, uint64_t rambytes, asset netamount, asset cpuamount);
    ACTION createoreacc(name creator,
                         name newname,
                         public_key &ownerkey,
                         public_key &activekey,
-                        uint64_t pricekey,
-                        name referral );
-   ACTION chgacctier(name payer, name account, uint64_t pricekey);
+                        uint64_t tier,
+                        name referral);
+   ACTION chgacctier(name payer, name account, uint64_t tier);
 
    ACTION createtoken(const name& payer, const asset& maximum_supply);
 
-   ACTION tokenprice(asset tokenprice, name tokenkey);
-
-   ACTION pricecut();
-
-   orepricetable _prices;
+   pricetable _prices;
+   tiertable _tiers;
 
    typedef eosio::multi_index<"tierinfo"_n, tierinfo> tierinfotable;
    typedef eosio::multi_index<"reflog"_n, reflog> referrallogtable;

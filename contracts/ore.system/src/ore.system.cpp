@@ -1,30 +1,77 @@
 #include "ore.system.hpp"
 
-// Setting newaccount parameters and the price in terms of ORE
-// IMPORTANT: since bwpricerate is uint, ORE price needs to be equal or more than required SYS
-ACTION oresystem::setprice(asset createprice, uint64_t rambytes, asset netamount, asset cpuamount, uint64_t pricekey)
+// Migration
+ACTION oresystem::migrate()
+{
+    require_auth(_self);
+    while(_prices.begin() != _prices.end()) {
+        _prices.erase(_prices.begin());
+    }
+    auto priceitr = _prices.begin();
+    check(priceitr == _prices.end(), "pricetable has to be empty for migration");
+    auto tieritr = _tiers.begin();
+    check(tieritr == _tiers.end(), "tiertable has to be empty for migration");
+
+    _prices.emplace(_self, [&](auto &p) {
+        p.pricename = name("minimalaccnt"); //
+        p.price = asset(100000, symbol(symbol_code("ORE"), 4));
+    });
+
+    _tiers.emplace(_self, [&](auto &t) {
+        t.key = 1;
+        t.ramfactor = 10000; 
+        t.rambytes = 4070;
+        t.netamount = asset(0, symbol(symbol_code("ORE"), 4));
+        t.cpuamount = asset(0, symbol(symbol_code("ORE"), 4));
+    });
+}
+
+// Setting or updating a price of an entity that can be bought on chain (i.e. accounts, instruments, tokens)
+ACTION oresystem::setprice(name pricename, asset price)
 {
     require_auth(_self);
 
-    auto priceitr = _prices.find(pricekey);
+    auto priceitr = _prices.find(pricename.value);
 
     if (priceitr == _prices.end())
     {
         _prices.emplace(_self, [&](auto &p) {
-            p.key = pricekey;
-            p.createprice = createprice;
-            p.rambytes = rambytes;
-            p.netamount = netamount;
-            p.cpuamount = cpuamount;
+            p.pricename = pricename;
+            p.price = price;
         });
     }
     else
     {
         _prices.modify(priceitr, _self, [&](auto &p) {
-            p.createprice = createprice;
-            p.rambytes = rambytes;
-            p.netamount = netamount;
-            p.cpuamount = cpuamount;
+            p.price = price;
+        });
+    }
+}
+
+// Setting or updating a price of an entity that can be bought on chain (i.e. accounts, instruments, tokens)
+ACTION oresystem::settier(uint64_t key, uint64_t ramfactor, uint64_t rambytes, asset netamount, asset cpuamount)
+{
+    require_auth(_self);
+
+    auto tieritr = _tiers.find(key);
+
+    if (tieritr == _tiers.end())
+    {
+        _tiers.emplace(_self, [&](auto &t) {
+            t.key = key;
+            t.ramfactor = ramfactor;
+            t.rambytes = rambytes;
+            t.netamount = netamount;
+            t.cpuamount = cpuamount;
+        });
+    }
+    else
+    {
+        _tiers.modify(tieritr, _self, [&](auto &t) {
+            t.ramfactor = ramfactor;
+            t.rambytes = rambytes;
+            t.netamount = netamount;
+            t.cpuamount = cpuamount;
         });
     }
 }
@@ -33,25 +80,29 @@ ACTION oresystem::createoreacc(name creator,
                                name newname,
                                public_key &ownerkey,
                                public_key &activekey,
-                               uint64_t pricekey,
+                               uint64_t tier,
                                name referral)
 {
     require_auth(creator);
     authority ownerauth{.threshold = 1, .keys = {key_weight{ownerkey, 1}}, .accounts = {}, .waits = {}};
     authority activeauth{.threshold = 1, .keys = {key_weight{activekey, 1}}, .accounts = {}, .waits = {}};
 
-    auto priceitr = _prices.find(pricekey);
-    check(priceitr != _prices.end(), "No price table");
+    auto tieritr = _tiers.find(tier);
+    check(tieritr != _tiers.end(), "No tier found");
 
-    tierinfotable _tiers(_self, newname.value);
-    _tiers.emplace(_self, [&](auto &t) {
-        t.pricekey = pricekey;
-        t.createprice = priceitr->createprice;
+    asset createprice = getPrice(name("minimumaccnt"));
+    createprice.amount = uint64_t((createprice.amount * tieritr->ramfactor) / 10000) + tieritr->netamount.amount + tieritr->cpuamount.amount;
+
+    tierinfotable _tierinfo(_self, newname.value);
+    _tierinfo.emplace(_self, [&](auto &ti) {
+        ti.pricekey = tier;
+        ti.createprice = createprice;
     });
+
     if (referral != name(""))
     {
         referralstatstable _stats(_self, referral.value);
-        auto statsitr = _stats.find(pricekey);
+        auto statsitr = _stats.find(tier);
 
         if (statsitr != _stats.end())
         {
@@ -62,7 +113,7 @@ ACTION oresystem::createoreacc(name creator,
         else
         {
             _stats.emplace(_self, [&](auto &s) {
-                s.pricekey = pricekey;
+                s.pricekey = tier;
                 s.count = 1;
             });
         }
@@ -74,48 +125,11 @@ ACTION oresystem::createoreacc(name creator,
         });
     }
 
-    //Get the ramprice and calculate the amount of SYS to be locked
-
-    asset ramprice = getRamCost(priceitr->rambytes);
-    asset sys_stake_net, sys_stake_cpu;
-    sys_stake_net.amount = priceitr->netamount.amount;
-    sys_stake_cpu.amount = priceitr->cpuamount.amount;
-    sys_stake_net.symbol = sys_symbol;
-    sys_stake_cpu.symbol = sys_symbol;
-
-    uint64_t resourceCost = sys_stake_net.amount + sys_stake_cpu.amount + ramprice.amount;
-    asset syslock;
-    syslock.symbol = sys_symbol;
-
-    if (priceitr->createprice.amount > resourceCost)
-    {
-        syslock.amount = priceitr->createprice.amount - resourceCost;
-        action(
-            permission_level{sys_payer, "active"_n},
-            "eosio.token"_n,
-            "transfer"_n,
-            make_tuple(sys_payer, sys_lock, syslock, std::string("sys locked")))
-            .send();
-        // If createprice is less than actual resource cost, sys_lock account HAS TO have enough balance to release price difference.
-    }
-    else if (priceitr->createprice.amount < resourceCost)
-    {
-        syslock.amount = resourceCost - priceitr->createprice.amount;
-        action(
-            permission_level{sys_lock, "active"_n},
-            "eosio.token"_n,
-            "transfer"_n,
-            make_tuple(sys_lock, sys_payer, syslock, std::string("sys released")))
-            .send();
-    }
-
-    //*** Changed GBT
-
     action(
         permission_level{get_self(), "active"_n},
         "eosio.token"_n,
         "stake"_n,
-        make_tuple(creator, newname, priceitr->createprice, std::string("ore lock")))
+        make_tuple(creator, newname, createprice, std::string("ore staked")))
         .send();
     //***
     accounts::newaccount new_account = accounts::newaccount{
@@ -135,21 +149,32 @@ ACTION oresystem::createoreacc(name creator,
         permission_level{sys_payer, "active"_n},
         "eosio"_n,
         name("buyrambytes"),
-        make_tuple(sys_payer, newname, priceitr->rambytes))
+        make_tuple(sys_payer, newname, tieritr->rambytes))
         .send();
 
-    action(
-        permission_level{sys_payer, "active"_n},
-        "eosio"_n,
-        name("delegatebw"),
-        make_tuple(sys_payer, newname, sys_stake_net, sys_stake_cpu, false))
-        .send();
+    asset sys_stake_net, sys_stake_cpu;
+    sys_stake_net.amount = tieritr->netamount.amount;
+    sys_stake_cpu.amount = tieritr->cpuamount.amount;
+    sys_stake_net.symbol = sys_symbol;
+    sys_stake_cpu.symbol = sys_symbol;
+    if(sys_stake_net.amount > 0 || sys_stake_cpu.amount > 0) {
+        action(
+            permission_level{sys_payer, "active"_n},
+            "eosio"_n,
+            name("delegatebw"),
+            make_tuple(sys_payer, newname, sys_stake_net, sys_stake_cpu, false))
+            .send();
+    }
 }
 
-ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
+
+ACTION oresystem::chgacctier(name payer, name account, uint64_t tier)
 {
     require_auth(payer);
-    auto newPriceItr = _prices.find(pricekey);
+
+    auto newTierItr = _tiers.find(tier);
+    asset newprice = getPrice(name("minimumaccnt"));
+    newprice.amount = uint64_t((newprice.amount * newTierItr->ramfactor) / 100) + newTierItr->netamount.amount + newTierItr->cpuamount.amount;
 
     asset currentCpu = getAccountCpu(account);
     asset currentNet = getAccountNet(account);
@@ -158,9 +183,9 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
     asset cpuNetDelta;
     cpuNetDelta.symbol = core_symbol;
     uint64_t ramDelta;
-    if (newPriceItr->cpuamount.amount > currentCpu.amount)
+    if (newTierItr->cpuamount.amount > currentCpu.amount)
     {
-        cpuNetDelta.amount = newPriceItr->cpuamount.amount - currentCpu.amount;
+        cpuNetDelta.amount = newTierItr->cpuamount.amount - currentCpu.amount;
         action(
             permission_level{sys_payer, "active"_n},
             "eosio"_n,
@@ -168,9 +193,9 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             make_tuple(sys_payer, account, asset(0, core_symbol), cpuNetDelta, false))
             .send();
     }
-    else if (newPriceItr->cpuamount.amount < currentCpu.amount)
+    else if (newTierItr->cpuamount.amount < currentCpu.amount)
     {
-        cpuNetDelta.amount = currentCpu.amount - newPriceItr->cpuamount.amount;
+        cpuNetDelta.amount = currentCpu.amount - newTierItr->cpuamount.amount;
         action(
             permission_level{sys_payer, "active"_n},
             "eosio"_n,
@@ -178,9 +203,9 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             make_tuple(sys_payer, account, asset(0, core_symbol), cpuNetDelta))
             .send();
     }
-    if (newPriceItr->netamount.amount > currentNet.amount)
+    if (newTierItr->netamount.amount > currentNet.amount)
     {
-        cpuNetDelta.amount = newPriceItr->netamount.amount - currentNet.amount;
+        cpuNetDelta.amount = newTierItr->netamount.amount - currentNet.amount;
         action(
             permission_level{sys_payer, "active"_n},
             "eosio"_n,
@@ -188,9 +213,9 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             make_tuple(sys_payer, account, cpuNetDelta, asset(0, core_symbol), false))
             .send();
     }
-    else if (newPriceItr->netamount.amount < currentNet.amount)
+    else if (newTierItr->netamount.amount < currentNet.amount)
     {
-        cpuNetDelta.amount = currentNet.amount - newPriceItr->netamount.amount;
+        cpuNetDelta.amount = currentNet.amount - newTierItr->netamount.amount;
         action(
             permission_level{sys_payer, "active"_n},
             "eosio"_n,
@@ -198,9 +223,9 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             make_tuple(sys_payer, account, cpuNetDelta, asset(0, core_symbol)))
             .send();
     }
-    if (newPriceItr->rambytes > (currentRambytes + 14))
+    if (newTierItr->rambytes > (currentRambytes + 14))
     {
-        ramDelta = newPriceItr->rambytes - currentRambytes;
+        ramDelta = newTierItr->rambytes - currentRambytes;
         action(
             permission_level{sys_payer, "active"_n},
             "eosio"_n,
@@ -208,9 +233,9 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
             make_tuple(sys_payer, account, ramDelta))
             .send();
     }
-    else if ((newPriceItr->rambytes + 14) < currentRambytes)
+    else if ((newTierItr->rambytes + 14) < currentRambytes)
     {
-        ramDelta = currentRambytes - newPriceItr->rambytes;
+        ramDelta = currentRambytes - newTierItr->rambytes;
         action(
             permission_level{sys_payer, "active"_n},
             "eosio"_n,
@@ -220,49 +245,49 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
     }
     asset orePriceDelta;
     asset sysUsageDelta;
-    tierinfotable _tiers(_self, account.value);
-    auto oldTierItr = _tiers.begin();
+    tierinfotable _tierinfo(_self, account.value);
+    auto oldTierInfoItr = _tierinfo.begin();
     name oldStaker = getStakerName(account);
-    if (_tiers.begin() == _tiers.end())
+    if (_tierinfo.begin() == _tierinfo.end())
     {
         action(
             permission_level{ore_system, "active"_n},
             "eosio.token"_n,
             "stake"_n,
-            make_tuple(payer, account, newPriceItr->createprice, std::string("ore lock")))
+            make_tuple(payer, account, newprice, std::string("ore staked")))
             .send();
     }
     else if (oldStaker == name(""))
     {
-        check(newPriceItr->createprice == oldTierItr->createprice, "This account needs to be migrated first. Call changetier with same tier or same createprice.");
+        check(newprice == oldTierInfoItr->createprice, "This account needs to be migrated first. Call changetier with same tier or same createprice.");
         action(
             permission_level{ore_system, "active"_n},
             "eosio.token"_n,
             "stake"_n,
-            make_tuple(payer, account, newPriceItr->createprice, std::string("ore lock")))
+            make_tuple(payer, account, newprice, std::string("ore staked")))
             .send();
         if(ore_lock != payer) {
             action(
             permission_level{ore_lock, "active"_n},
             "eosio.token"_n,
             "transfer"_n,
-            make_tuple(ore_lock, payer, newPriceItr->createprice, std::string("ore unlocked - (migration)")))
+            make_tuple(ore_lock, payer, oldTierInfoItr->createprice, std::string("ore unlocked - (migration)")))
             .send();
         }
-        _tiers.erase(oldTierItr);
+        _tierinfo.erase(oldTierInfoItr);
     }
     else
     {
-        if (newPriceItr->createprice > oldTierItr->createprice)
+        if (newprice > oldTierInfoItr->createprice)
         {
             if (oldStaker == payer)
             {
-                orePriceDelta = newPriceItr->createprice - oldTierItr->createprice;
+                orePriceDelta = newprice - oldTierInfoItr->createprice;
                 action(
                     permission_level{ore_system, "active"_n},
                     "eosio.token"_n,
                     "stake"_n,
-                    make_tuple(payer, account, orePriceDelta, std::string("ore lock")))
+                    make_tuple(payer, account, orePriceDelta, std::string("ore staked")))
                     .send();
             }
             else
@@ -271,28 +296,28 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
                     permission_level{ore_system, "active"_n},
                     "eosio.token"_n,
                     "unstake"_n,
-                    make_tuple(oldStaker, account, oldTierItr->createprice, std::string("ore released from lock")))
+                    make_tuple(oldStaker, account, oldTierInfoItr->createprice, std::string("ore unstaked")))
                     .send();
 
                 action(
                     permission_level{ore_system, "active"_n},
                     "eosio.token"_n,
                     "stake"_n,
-                    make_tuple(payer, account, newPriceItr->createprice, std::string("ore lock")))
+                    make_tuple(payer, account, newprice, std::string("ore staked")))
                     .send();
             }
         }
-        else if (newPriceItr->createprice < oldTierItr->createprice)
+        else if (newprice < oldTierInfoItr->createprice)
         {
             check(payer == account, "To downgrade tier, payer has to be owner");
             if (oldStaker == account)
             {
-                orePriceDelta = oldTierItr->createprice - newPriceItr->createprice;
+                orePriceDelta = oldTierInfoItr->createprice - newprice;
                 action(
                     permission_level{ore_system, "active"_n},
                     "eosio.token"_n,
                     "unstake"_n,
-                    make_tuple(payer, account, orePriceDelta, std::string("ore released from lock")))
+                    make_tuple(payer, account, orePriceDelta, std::string("ore unstaked")))
                     .send();
             }
             else
@@ -301,65 +326,35 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t pricekey)
                     permission_level{ore_system, "active"_n},
                     "eosio.token"_n,
                     "unstake"_n,
-                    make_tuple(oldStaker, account, oldTierItr->createprice, std::string("ore released from lock")))
+                    make_tuple(oldStaker, account, oldTierInfoItr->createprice, std::string("ore unstaked")))
                     .send();
 
                 action(
                     permission_level{ore_system, "active"_n},
                     "eosio.token"_n,
                     "stake"_n,
-                    make_tuple(account, account, newPriceItr->createprice, std::string("ore lock")))
+                    make_tuple(account, account, newprice, std::string("ore staked")))
                     .send();
             }
         }
-        _tiers.erase(oldTierItr);
-    }
-    asset currentRamCost = getRamCost(currentRambytes);
-    asset newRamCost = getRamCost(newPriceItr->rambytes);
-    asset currentTotalCost;
-    asset oldSysLock;
-    asset newTotalCost;
-    asset newSysLock;
-    currentTotalCost.amount = currentRamCost.amount + currentNet.amount + currentCpu.amount;
-    oldSysLock.amount = oldTierItr->createprice.amount - currentTotalCost.amount;
-    newTotalCost.amount = newRamCost.amount + newPriceItr->netamount.amount + newPriceItr->cpuamount.amount;
-    newSysLock.amount = newPriceItr->createprice.amount - newTotalCost.amount;
-
-    if (newSysLock.amount > oldSysLock.amount)
-    {
-        action(
-            permission_level{sys_payer, "active"_n},
-            "eosio.token"_n,
-            "transfer"_n,
-            make_tuple(sys_payer, sys_lock, asset((newSysLock.amount - oldSysLock.amount), core_symbol), std::string("sys locked")))
-            .send();
-    }
-    else if (oldSysLock.amount > newSysLock.amount)
-    {
-        action(
-            permission_level{sys_lock, "active"_n},
-            "eosio.token"_n,
-            "transfer"_n,
-            make_tuple(sys_lock, sys_payer, asset((oldSysLock.amount - newSysLock.amount), core_symbol), std::string("sys released")))
-            .send();
+        _tierinfo.erase(oldTierInfoItr);
     }
 
-    _tiers.emplace(sys_payer, [&](auto &t) {
-        t.pricekey = pricekey;
-        t.createprice = newPriceItr->createprice;
+    _tierinfo.emplace(sys_payer, [&](auto &t) {
+        t.pricekey = tier;
+        t.createprice = newprice;
     });
 }
 
 ACTION oresystem::createtoken(const name& payer, const asset& maximum_supply) {
 
-    auto priceitr = _prices.find(name("apptoken.ore").value);
-    check(priceitr != _prices.end(), "No price table");
+    asset price = getPrice(name("apptoken.ore"));
 
     action(
         permission_level{payer, "active"_n},
         "eosio.token"_n,
         "transfer"_n,
-        make_tuple(payer, ore_system, priceitr->createprice, std::string("create token payment")))
+        make_tuple(payer, ore_system, price, std::string("create token payment")))
         .send();
 
     action(
@@ -371,46 +366,6 @@ ACTION oresystem::createtoken(const name& payer, const asset& maximum_supply) {
 
 }
 
-ACTION oresystem::tokenprice(asset tokenprice, name tokenkey)
-{
-    require_auth(_self);
-
-    auto priceitr = _prices.find(tokenkey.value);
-
-    if (priceitr == _prices.end())
-    {
-        _prices.emplace(_self, [&](auto &p) {
-            p.key = tokenkey.value;
-            p.createprice = tokenprice;
-            p.rambytes = 0;
-            p.netamount = asset(0, ore_symbol);
-            p.cpuamount = asset(0, ore_symbol);
-        });
-    }
-    else
-    {
-        _prices.modify(priceitr, _self, [&](auto &p) {
-            p.createprice = tokenprice;
-        });
-    }
-}
-
-ACTION oresystem::pricecut()
-{
-    require_auth("eosio"_n);
-
-    auto priceitr = _prices.begin();
-
-    while(priceitr != _prices.end()) {
-        asset newprice = priceitr->createprice;
-        newprice.amount = newprice.amount * 0.8;
-        _prices.modify(priceitr, _self, [&](auto &p) {
-            p.createprice = newprice;
-        });
-        priceitr++;
-    }
-}
-
 // namespace oresystem
 
-EOSIO_DISPATCH(oresystem, (setprice)(createoreacc)(chgacctier)(createtoken)(tokenprice)(pricecut))
+EOSIO_DISPATCH(oresystem, (migrate)(setprice)(settier)(createoreacc)(chgacctier)(createtoken))

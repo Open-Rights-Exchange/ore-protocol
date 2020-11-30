@@ -13,7 +13,7 @@ ACTION oresystem::migrate()
     check(tieritr == _tiers.end(), "tiertable has to be empty for migration");
 
     _prices.emplace(_self, [&](auto &p) {
-        p.pricename = name("minimalaccnt"); //
+        p.pricename = minimal_account_price;
         p.price = asset(100000, symbol(symbol_code("ORE"), 4));
     });
 
@@ -90,7 +90,8 @@ ACTION oresystem::createoreacc(name creator,
     auto tieritr = _tiers.find(tier);
     check(tieritr != _tiers.end(), "No tier found");
 
-    asset createprice = getPrice(name("minimumaccnt"));
+    asset createprice = getPrice(minimal_account_price);
+    // Calculate createprice from minimal account price and tier requirements
     createprice.amount = uint64_t((createprice.amount * tieritr->ramfactor) / 10000) + tieritr->netamount.amount + tieritr->cpuamount.amount;
 
     tierinfotable _tierinfo(_self, newname.value);

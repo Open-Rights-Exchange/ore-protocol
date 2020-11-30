@@ -62,22 +62,24 @@ private:
       EOSLIB_SERIALIZE(refstats, (pricekey)(count))
    };
 
+   /** 
+    * Check Network Utilization < Emergency Threshold (%80)
+    * if threshold is exceeded increase the price exponentially
+    * IMPORTANT: emergency phase prices are temporary
+    *    After upgraderam() is triggered and utilization normalizes back to < %50
+    *    stakers will be able to get refund for the extra amount they paid during emergency phase
+   */
    asset getPrice(name pricename) {
       auto priceitr = _prices.find(pricename.value);
       check(priceitr != _prices.end(), "No price found");
       asset price;
       float utilization = getRamUtilization();
-      print("utilization!");
       print(utilization);
-      if(utilization < 0.8 ) {
+      if(utilization < emergency_threshold ) {
          price = priceitr->price;
       } else {
          price = priceitr->price;
-         print(price.amount);
-         print("--");
-         print(( 1 - (( utilization - 0.8F ) / 0.2F)));
-         print("-l-");                                   //0.94            0.19 / 0.2
-         price.amount = (uint64_t)(price.amount / ( 1 - (( utilization - 0.8F ) / 0.2F)));
+         price.amount = (uint64_t)(price.amount / ( 1 - ((utilization - emergency_threshold ) / (1.0F - emergency_threshold))));
       }
       return price;
    }
@@ -108,6 +110,7 @@ public:
    typedef eosio::multi_index<"refstats"_n, refstats> referralstatstable;
 
    //possibly different accounts that has different uses
+   static constexpr name minimal_account_price{"minimalaccnt"_n};
    static constexpr name token_account{"eosio.token"_n};
    static constexpr name ore_system{"system.ore"_n};
    static constexpr name ore_lock{"lock.ore"_n};
@@ -115,7 +118,6 @@ public:
    static constexpr name sys_payer{"system.ore"_n};
    static constexpr symbol ore_symbol = symbol(symbol_code("ORE"), 4);
    static constexpr symbol sys_symbol = symbol(symbol_code("SYS"), 4);
-};
 
-// 1 insturment system cost : 1 SYS      -----> 4 SYS
-// ORE price : 5 ORE                     -----> 5 ORE
+   static constexpr float emergency_threshold = 0.8;
+};

@@ -99,18 +99,6 @@ namespace common
    {
       global gtable(name("eosio"), name("eosio").value);
       eosio_global_state _gstate = gtable.get();
-      print(_gstate.max_ram_size);
-      print(" - ");
-      print(_gstate.total_ram_bytes_reserved);
-      print(" - ");
-      print(_gstate.total_ram_stake);
-      print(" - ");
-      print(_gstate.pervote_bucket);
-      print(" - ");
-      print(_gstate.perblock_bucket);
-      print(" - ");
-      print(_gstate.last_producer_schedule_size);
-      print(" - ");
       return (float)_gstate.total_ram_bytes_reserved / (float)_gstate.max_ram_size;
    }
 

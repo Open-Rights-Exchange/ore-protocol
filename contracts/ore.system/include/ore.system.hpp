@@ -74,7 +74,6 @@ private:
       check(priceitr != _prices.end(), "No price found");
       asset price;
       float utilization = getRamUtilization();
-      print(utilization);
       if(utilization < emergency_threshold ) {
          price = priceitr->price;
       } else {

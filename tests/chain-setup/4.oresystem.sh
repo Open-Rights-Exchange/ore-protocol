@@ -3,7 +3,7 @@ cleos=$1
 
 ore_contracts=$2
 
-$cleos wallet unlock -n development --password $(cat ~/walletpw.txt)
+$cleos wallet unlock -n oretest --password $(cat ~/walletpw.txt)
 
 $cleos transfer eosio ore "10000000.0000 SYS" "test.com,50,10" -p eosio@active
 sleep 1s

@@ -3,7 +3,7 @@
 cleos=$1
 eosio_contracts=$2
 
-$cleos wallet unlock -n development --password $(cat ~/walletpw.txt)
+$cleos wallet unlock -n oretest --password $(cat ~/walletpw.txt)
 
 sleep 3s
 

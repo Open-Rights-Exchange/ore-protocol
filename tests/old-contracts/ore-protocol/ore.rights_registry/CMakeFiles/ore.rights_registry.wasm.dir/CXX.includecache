@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.rights_registry/include/ore.rights_registry.hpp
+string
+-
+eosiolib/eosio.hpp
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.rights_registry/include/eosiolib/eosio.hpp
+ore.types.h
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.rights_registry/include/ore.types.h
+
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.rights_registry/include/ore.types.h
+eosiolib/transaction.hpp
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.rights_registry/include/eosiolib/transaction.hpp
+string
+-
+
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.rights_registry/src/ore.rights_registry.cpp
+../include/ore.rights_registry.hpp
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.rights_registry/include/ore.rights_registry.hpp
+

@@ -45,6 +45,7 @@ jobs:
             ./1.all_start.sh
             ./setupProduction.sh
             ./updateProduction.sh
+            ./runTests.sh
 
       - store_artifacts:
           path: test-reports

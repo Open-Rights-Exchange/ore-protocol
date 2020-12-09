@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.standard_token/include/ore.standard_token.hpp
+eosiolib/asset.hpp
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.standard_token/include/eosiolib/asset.hpp
+eosiolib/eosio.hpp
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.standard_token/include/eosiolib/eosio.hpp
+string
+-
+
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.standard_token/src/ore.standard_token.cpp
+../include/ore.standard_token.hpp
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.standard_token/include/ore.standard_token.hpp
+

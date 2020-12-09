@@ -9,9 +9,10 @@ jobs:
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: bcelebci/ore-protocol
+      - image: bcelebci/ore-protocol:tokenupdate
         environment:
           PIPENV_VENV_IN_PROJECT: true
+        
 
     steps:
       - checkout
@@ -35,10 +36,16 @@ jobs:
       - run:
           name: run tests
           command: |
-            tests/prepare_test.sh
-            python3 tests/rights_registry.py
-            python3 tests/instrument.py
-            python3 tests/usage_log.py
+            contracts/build.sh
+            cd tests/genesis
+            ./genesis_start.sh
+            cd ../producer1/
+            ./genesis_start.sh
+            cd ../
+            ./1.all_start.sh
+            ./setupProduction.sh
+            ./updateProduction.sh
+            ./runTests.sh
 
       - store_artifacts:
           path: test-reports

@@ -29,11 +29,13 @@ else()
    set(TEST_BUILD_TYPE ${CMAKE_BUILD_TYPE})
 endif()
 
+add_subdirectory(ore.apptoken)
 add_subdirectory(ore.system)
 #add_subdirectory(ore.standard_token)
 add_subdirectory(ore.rights_registry)
 add_subdirectory(ore.instrument)
 add_subdirectory(ore.usage_log)
+
 
 if (APPLE)
    set(OPENSSL_ROOT "/usr/local/opt/openssl")

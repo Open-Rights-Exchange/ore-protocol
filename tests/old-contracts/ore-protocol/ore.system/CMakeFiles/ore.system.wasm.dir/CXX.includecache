@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../ore.system/include/accounts.h
+eosio/crypto.hpp
+-
+
+../ore.system/include/common.h
+
+../ore.system/include/ore.system.hpp
+eosio/eosio.hpp
+-
+eosio/asset.hpp
+-
+eosio/ignore.hpp
+-
+eosio/transaction.hpp
+../ore.system/include/eosio/transaction.hpp
+accounts.h
+../ore.system/include/accounts.h
+common.h
+../ore.system/include/common.h
+
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.system/src/ore.system.cpp
+ore.system.hpp
+/Users/basarcancelebci/Work/API-market/ore-protocol/contracts/ore.system/src/ore.system.hpp
+

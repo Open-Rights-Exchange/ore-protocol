@@ -1,0 +1,1 @@
+//usr/local/bin/eosio-ld  CMakeFiles/ore.usage_log.wasm.dir/src/ore.usage_log.cpp.o -o ore.usage_log.wasm 

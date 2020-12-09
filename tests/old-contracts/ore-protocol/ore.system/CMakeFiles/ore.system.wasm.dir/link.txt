@@ -1,0 +1,1 @@
+/Users/basarcancelebci/Work/EOSIO/eosio.cdt/build/bin/eosio-ld  CMakeFiles/ore.system.wasm.dir/src/ore.system.cpp.o -o ore.system.wasm 

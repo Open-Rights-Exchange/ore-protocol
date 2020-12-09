@@ -1,0 +1,236 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT ",
+    "version": "eosio::abi/1.1",
+    "types": [],
+    "structs": [
+        {
+            "name": "chgacctier",
+            "base": "",
+            "fields": [
+                {
+                    "name": "payer",
+                    "type": "name"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "pricekey",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "createoreacc",
+            "base": "",
+            "fields": [
+                {
+                    "name": "creator",
+                    "type": "name"
+                },
+                {
+                    "name": "newname",
+                    "type": "name"
+                },
+                {
+                    "name": "ownerkey",
+                    "type": "public_key"
+                },
+                {
+                    "name": "activekey",
+                    "type": "public_key"
+                },
+                {
+                    "name": "pricekey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "referral",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "createtoken",
+            "base": "",
+            "fields": [
+                {
+                    "name": "payer",
+                    "type": "name"
+                },
+                {
+                    "name": "maximum_supply",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "oreprice",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "createprice",
+                    "type": "asset"
+                },
+                {
+                    "name": "rambytes",
+                    "type": "uint64"
+                },
+                {
+                    "name": "netamount",
+                    "type": "asset"
+                },
+                {
+                    "name": "cpuamount",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "reflog",
+            "base": "",
+            "fields": [
+                {
+                    "name": "referral",
+                    "type": "name"
+                },
+                {
+                    "name": "newaccount",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "refstats",
+            "base": "",
+            "fields": [
+                {
+                    "name": "pricekey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "count",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "setprice",
+            "base": "",
+            "fields": [
+                {
+                    "name": "createprice",
+                    "type": "asset"
+                },
+                {
+                    "name": "rambytes",
+                    "type": "uint64"
+                },
+                {
+                    "name": "netamount",
+                    "type": "asset"
+                },
+                {
+                    "name": "cpuamount",
+                    "type": "asset"
+                },
+                {
+                    "name": "pricekey",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "tierinfo",
+            "base": "",
+            "fields": [
+                {
+                    "name": "pricekey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "createprice",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "tokenprice",
+            "base": "",
+            "fields": [
+                {
+                    "name": "tokenprice",
+                    "type": "asset"
+                },
+                {
+                    "name": "tokenkey",
+                    "type": "name"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "name": "chgacctier",
+            "type": "chgacctier",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "createoreacc",
+            "type": "createoreacc",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "createtoken",
+            "type": "createtoken",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "setprice",
+            "type": "setprice",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "tokenprice",
+            "type": "tokenprice",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "pricetable",
+            "type": "oreprice",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "reflog",
+            "type": "reflog",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "refstats",
+            "type": "refstats",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "tierinfo",
+            "type": "tierinfo",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": []
+}

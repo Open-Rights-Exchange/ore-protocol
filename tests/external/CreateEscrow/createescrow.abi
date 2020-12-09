@@ -1,0 +1,717 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT ",
+    "version": "eosio::abi/1.1",
+    "types": [],
+    "structs": [
+        {
+            "name": "airdropdata",
+            "base": "",
+            "fields": [
+                {
+                    "name": "contract",
+                    "type": "name"
+                },
+                {
+                    "name": "balance",
+                    "type": "asset"
+                },
+                {
+                    "name": "amount",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "balances",
+            "base": "",
+            "fields": [
+                {
+                    "name": "memo",
+                    "type": "uint64"
+                },
+                {
+                    "name": "contributors",
+                    "type": "contributors[]"
+                },
+                {
+                    "name": "total_balance",
+                    "type": "asset"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "clean",
+            "base": "",
+            "fields": []
+        },
+        {
+            "name": "cleanreg",
+            "base": "",
+            "fields": []
+        },
+        {
+            "name": "cleantoken",
+            "base": "",
+            "fields": []
+        },
+        {
+            "name": "contributors",
+            "base": "",
+            "fields": [
+                {
+                    "name": "contributor",
+                    "type": "name"
+                },
+                {
+                    "name": "balance",
+                    "type": "asset"
+                },
+                {
+                    "name": "rex_balance",
+                    "type": "asset"
+                },
+                {
+                    "name": "total_spent",
+                    "type": "asset"
+                },
+                {
+                    "name": "total_staked",
+                    "type": "asset"
+                },
+                {
+                    "name": "total_spent_rex",
+                    "type": "asset"
+                },
+                {
+                    "name": "ram_contribution_percent",
+                    "type": "int32"
+                },
+                {
+                    "name": "totalaccounts",
+                    "type": "int32"
+                },
+                {
+                    "name": "createdaccounts",
+                    "type": "int32"
+                }
+            ]
+        },
+        {
+            "name": "create",
+            "base": "",
+            "fields": [
+                {
+                    "name": "memo",
+                    "type": "string"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "ownerkey",
+                    "type": "public_key"
+                },
+                {
+                    "name": "activekey",
+                    "type": "public_key"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                },
+                {
+                    "name": "referral",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "define",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "dapp",
+                    "type": "string"
+                },
+                {
+                    "name": "ram_bytes",
+                    "type": "uint64"
+                },
+                {
+                    "name": "net",
+                    "type": "asset"
+                },
+                {
+                    "name": "cpu",
+                    "type": "asset"
+                },
+                {
+                    "name": "pricekey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "airdrop",
+                    "type": "airdropdata"
+                },
+                {
+                    "name": "use_rex",
+                    "type": "bool"
+                },
+                {
+                    "name": "rex",
+                    "type": "rexdata"
+                }
+            ]
+        },
+        {
+            "name": "fundcpuloan",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "fundnetloan",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "init",
+            "base": "",
+            "fields": [
+                {
+                    "name": "symbol",
+                    "type": "symbol"
+                },
+                {
+                    "name": "newaccountcontract",
+                    "type": "name"
+                },
+                {
+                    "name": "newaccountaction",
+                    "type": "name"
+                },
+                {
+                    "name": "minimumram",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "ping",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "reclaim",
+            "base": "",
+            "fields": [
+                {
+                    "name": "reclaimer",
+                    "type": "name"
+                },
+                {
+                    "name": "dapp",
+                    "type": "string"
+                },
+                {
+                    "name": "sym",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "refundstakes",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "registryStruct",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "dapp",
+                    "type": "string"
+                },
+                {
+                    "name": "ram_bytes",
+                    "type": "uint64"
+                },
+                {
+                    "name": "net",
+                    "type": "asset"
+                },
+                {
+                    "name": "cpu",
+                    "type": "asset"
+                },
+                {
+                    "name": "custodians",
+                    "type": "name[]"
+                },
+                {
+                    "name": "pricekey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "use_rex",
+                    "type": "bool"
+                },
+                {
+                    "name": "airdrop",
+                    "type": "airdropdata?"
+                },
+                {
+                    "name": "rex",
+                    "type": "rexdata?"
+                }
+            ]
+        },
+        {
+            "name": "rentcpu",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "rentnet",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "rexdata",
+            "base": "",
+            "fields": [
+                {
+                    "name": "net_loan_payment",
+                    "type": "asset"
+                },
+                {
+                    "name": "net_loan_fund",
+                    "type": "asset"
+                },
+                {
+                    "name": "cpu_loan_payment",
+                    "type": "asset"
+                },
+                {
+                    "name": "cpu_loan_fund",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "stake",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                },
+                {
+                    "name": "net",
+                    "type": "asset"
+                },
+                {
+                    "name": "cpu",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "token",
+            "base": "",
+            "fields": [
+                {
+                    "name": "S_SYS",
+                    "type": "symbol"
+                },
+                {
+                    "name": "newaccountcontract",
+                    "type": "name"
+                },
+                {
+                    "name": "newaccountaction",
+                    "type": "name"
+                },
+                {
+                    "name": "min_ram",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "topuploans",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "cpuquantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "netquantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "unstake",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "unstakeStruct",
+            "base": "",
+            "fields": [
+                {
+                    "name": "reclaimer",
+                    "type": "name"
+                },
+                {
+                    "name": "net_balance",
+                    "type": "asset"
+                },
+                {
+                    "name": "cpu_balance",
+                    "type": "asset"
+                },
+                {
+                    "name": "dapp",
+                    "type": "string"
+                },
+                {
+                    "name": "origin",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "unstakecpu",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "unstakedBalStruct",
+            "base": "",
+            "fields": [
+                {
+                    "name": "balance",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "unstakenet",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "whitelist",
+            "base": "",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "name"
+                },
+                {
+                    "name": "account",
+                    "type": "name"
+                },
+                {
+                    "name": "dapp",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "name": "clean",
+            "type": "clean",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "cleanreg",
+            "type": "cleanreg",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "cleantoken",
+            "type": "cleantoken",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "create",
+            "type": "create",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "define",
+            "type": "define",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "fundcpuloan",
+            "type": "fundcpuloan",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "fundnetloan",
+            "type": "fundnetloan",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "init",
+            "type": "init",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "ping",
+            "type": "ping",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "reclaim",
+            "type": "reclaim",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "refundstakes",
+            "type": "refundstakes",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rentcpu",
+            "type": "rentcpu",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "rentnet",
+            "type": "rentnet",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "stake",
+            "type": "stake",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "topuploans",
+            "type": "topuploans",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "unstake",
+            "type": "unstake",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "unstakecpu",
+            "type": "unstakecpu",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "unstakenet",
+            "type": "unstakenet",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "whitelist",
+            "type": "whitelist",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "balances",
+            "type": "balances",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "contributors",
+            "type": "contributors",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "registry",
+            "type": "registryStruct",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "token",
+            "type": "token",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "totalreclaim",
+            "type": "unstakedBalStruct",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "unstaked",
+            "type": "unstakeStruct",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": []
+}

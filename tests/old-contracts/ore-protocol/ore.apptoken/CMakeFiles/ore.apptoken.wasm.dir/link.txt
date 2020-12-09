@@ -1,0 +1,1 @@
+/Users/basarcancelebci/Work/EOSIO/eosio.cdt/build/bin/eosio-ld  CMakeFiles/ore.apptoken.wasm.dir/src/ore.apptoken.cpp.o -o ore.apptoken.wasm 

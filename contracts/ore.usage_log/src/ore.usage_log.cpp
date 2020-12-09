@@ -35,7 +35,7 @@ class [[eosio::contract("ore.usage_log")]] usage_log : public eosio::contract
     {
         auto itr = _logs.find(hashStr(token_hash));
 
-        string msg = "No log exist for the given pair of instrument id " + to_string(instrument_id) + " and access token hash " + token_hash + "\n";
+        string msg = "No log exist for the given pair of instrument id " + to_string(instrument_id) + " and access token hash " + token_hash + " [usagelog.delete]\n";
         check(itr != _logs.end(),  msg.c_str());
 
         print("action:deletelog Log deleted for instrument id : " + to_string(instrument_id) + " and access token hash" + token_hash + "\n");

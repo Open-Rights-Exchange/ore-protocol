@@ -36,7 +36,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            ./tests.sh
+            ./test.sh
 
       - store_artifacts:
           path: test-reports

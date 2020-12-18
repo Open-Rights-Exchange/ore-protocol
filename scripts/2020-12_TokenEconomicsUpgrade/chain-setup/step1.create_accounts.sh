@@ -27,6 +27,7 @@ sleep 1s
 $cleos set contract eosio.wrap $eosio_contracts/eosio.wrap/
 
 curl -X POST http://127.0.0.1:8889/v1/producer/schedule_protocol_feature_activations -d '{"protocol_features_to_activate": ["0ec7e080177b2c02b278d5088611686b49d739925a92d9bfcacd7fc6b74053bd"]}'
+curl -X POST http://127.0.0.1:8888/v1/producer/schedule_protocol_feature_activations -d '{"protocol_features_to_activate": ["0ec7e080177b2c02b278d5088611686b49d739925a92d9bfcacd7fc6b74053bd"]}'
 
 sleep 3s
 $cleos set contract eosio $eosio_contracts/eosio.system/
@@ -51,7 +52,7 @@ $cleos push action eosio init '[0, "4,SYS"]' -p eosio@active
 # sleep 3s
 $cleos push action eosio setpriv '["eosio.msig", 1]' -p eosio@active
 
-$cleos system newaccount eosio --transfer producer1 EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV --stake-net "150000000.0000 SYS" --stake-cpu "150000000.0000 SYS" --buy-ram-kbytes 8192
+$cleos system newaccount eosio --transfer producer1 EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV --stake-net "200000000.0000 SYS" --stake-cpu "200000000.0000 SYS" --buy-ram-kbytes 8192
 
 $cleos system newaccount eosio --transfer producer2 EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV --stake-net "150000000.0000 SYS" --stake-cpu "150000000.0000 SYS" --buy-ram-kbytes 8192
 

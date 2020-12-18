@@ -9,12 +9,12 @@ services:
       context: .
       dockerfile: build-eosio-testnet.dockerfile
     image: openrightsexchange/ore-chain:v1.8.7
-    command: nodeos --data-dir /ore-data --config-dir /ore-data --config config.ini --logconf /ore-data/logging.json --genesis-json /ore-data/genesis.json >> /ore-data/nodeos.log
+    command: nodeos --data-dir /data --config-dir /data --config config.ini --logconf /data/logging.json --genesis-json /data/genesis.json >> /data/nodeos.log
     stop_grace_period: 1m0s
     networks:
       - testnet
     volumes:
-      - ../chain-setup/data/:/ore-data/
+      - ../chain-setup/data/:/data/
       - ../chain-setup/contracts-v1/:/root/contracts-v1
       - ../chain-setup/contracts-v2/:/root/contracts-v2
       - ../../../contracts/:/root/contracts
@@ -34,7 +34,7 @@ services:
     networks:
       - testnet
     volumes:
-      - ../chain-setup/data/:/ore-data/
+      - ../chain-setup/data/:/data/
     ports:
       - '8902:8901'
 

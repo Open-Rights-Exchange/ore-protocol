@@ -2,6 +2,8 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+pkill nodeos
+
 docker-compose -f "$DIR/Dockerfiles/docker-compose-ore.yml" -p ore rm -sf
 
 : ${ORE_DATADIR="$DIR/chain-setup/data"}
@@ -18,3 +20,4 @@ rm -rfv "$obc_dir"/*
 rm -rfv "$op2p_dir"/*
 rm -rfv "$ostate_dir"/*
 mkdir -p "$obc_dir" "$op2p_dir" "$ostate_dir" &> /dev/null
+rm "${ORE_DATADIR}/nodeos.log"

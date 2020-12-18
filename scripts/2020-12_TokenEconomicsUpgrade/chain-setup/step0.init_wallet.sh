@@ -1,8 +1,12 @@
 #!/bin/bash
 cleos="$1"
+setup_dir="$2"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-$cleos wallet create -n oretest -f /ore-data/walletpw.txt
+if [[ "$setup_dir" == "/root" ]]; then
+  setup_dir=""
+fi
+$cleos wallet create -n oretest -f "$setup_dir"/data/walletpw.txt
 
 $cleos wallet unlock -n oretest --password $(cat ${DIR}/data/walletpw.txt)
 

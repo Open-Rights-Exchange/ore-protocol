@@ -1,8 +1,13 @@
 #!/bin/bash
-cleos="${1:-cleos}"
+cleos="$1"
 eosio_contracts=${2:-~}/contracts-v2/eosio.contracts
 createescrow_path=${2:-~}/contracts-v2/CreateEscrow
-ore_contracts=${2:-~}/contracts
+if [[ "$2" == "/root" ]]; then
+  ore_contracts="$2/contracts"
+else
+  ore_contracts="$2/../../../contracts"
+fi
+
 
 $cleos system newaccount eosio --transfer eosio.upay EOS6H2tjbrS6zm8d3tX6yeHorEoihP23Ny9c9wFRHGfJp4vtD42rn --stake-net "10000.0000 SYS" --stake-cpu "10000.0000 SYS" --buy-ram-kbytes 8192 -p eosio
 

@@ -36,7 +36,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            ./test.sh
+            ./test.sh cleos
 
       - store_artifacts:
           path: test-reports

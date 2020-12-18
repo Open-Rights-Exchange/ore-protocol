@@ -1,7 +1,16 @@
 ## Token Economics V2 Upgrade ##
 
-step1.setup-v1.sh run through each chain setup scripts in ./chain-setup dir to initialize a local test chain with v1 ORE Chain setup.
+./upgrade-v2.sh contains the exact steps that has applied for chain upgrade.
 
-step2.upgrade-v2.sh runs the exact steps that will be applied to ORE Main chain with Token Economics update.
+./setup-v1.sh and ./chain-setups generates pre-upgrade environment for testing purposes.
 
-step3.migrate-stake.sh iterates through each account that has created before the v2 upgrade and sets up the staker for them specified in the "changetier" action.
+To appy upgrade and run tests, from repositories root directory:
+
+```bash
+#Run tests using pre-built docker images
+./test.sh
+```
+```bash
+#Run tests using local eosio software. (nodeos 1.8.7 & eosio.cdt 1.6.5 required)
+./test.sh cleos
+```

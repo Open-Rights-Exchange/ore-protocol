@@ -174,7 +174,7 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t tier)
     require_auth(payer);
 
     auto newTierItr = _tiers.find(tier);
-    asset newprice = getPrice(name("minimumaccnt"));
+    asset newprice = getPrice(minimal_account_price);
     newprice.amount = uint64_t((newprice.amount * newTierItr->ramfactor) / 100) + newTierItr->netamount.amount + newTierItr->cpuamount.amount;
 
     asset currentCpu = getAccountCpu(account);

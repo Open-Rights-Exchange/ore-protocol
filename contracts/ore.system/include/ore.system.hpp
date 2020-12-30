@@ -71,7 +71,7 @@ private:
    */
    asset getPrice(name pricename) {
       auto priceitr = _prices.find(pricename.value);
-      check(priceitr != _prices.end(), "No price found");
+      check(priceitr != _prices.end(), "No price found [oresystem.getPrice]");
       asset price;
       float utilization = getRamUtilization();
       if(utilization < emergency_threshold ) {

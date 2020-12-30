@@ -3,6 +3,9 @@
 
 The ORE Protocol is a blockchain-hosted API that provides a developer-friendly way to define any digital asset (or any physical asset with an online digital representation) and to trade and control access to these protected resources.
 
+### Token Economics Upgrade (2021-01-03)
+
+The ORE Network designed to provide simpler approach for managing account resources (tiers) and to incentivize staking ORE tokens (via creating accounts, instruments etc..). Token Economics Upgrade enables these features, allowing stakers to claim rewards just like BPs (once a month). Click [here](./scripts/2020-12_TokenEconomicsUpgrade) to see upgrade details
 ### Rights Token (aka Instrument)
 A non-fungible 'Rights Token' can enable access to one or more protected resources. It specifies which resources are available, how much each costs to access, and how to access them. These tokens can be stored in a blockchain 'wallet' and presented to the ORE Protocol to retrieve an endpoint and access token. Payment to access a resource (when required) is made as a real-time micropayment using the stable 'CPU' token.
 

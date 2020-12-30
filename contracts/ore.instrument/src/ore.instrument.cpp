@@ -23,7 +23,7 @@ ACTION instrument::mint(name minter, name owner, instrument_data instrument,
     // Checking if the minter has the required authorization
     require_auth(minter);
 
-    string msg = "owner account does not exist " + owner.to_string();
+    string msg = "owner account does not exist " + owner.to_string() + "[instrument.mint]";
     check(is_account(owner), msg.c_str());
 
     // if an instrument_template name is passed-in, look from an instrument with the same name on the chain
@@ -34,7 +34,7 @@ ACTION instrument::mint(name minter, name owner, instrument_data instrument,
 
     if (instrument.rights.size() == 0)
     {
-        check(false, "Right array is empty");
+        check(false, "Right array is empty [instrument.mint]");
     }
 
     // If instrumentId value passed as 0, next available primate key will be automatically assigned as instrumentId
@@ -54,7 +54,7 @@ ACTION instrument::mint(name minter, name owner, instrument_data instrument,
     {
         auto institr = _tokens.find(instrumentId);
         // If an id value specified (other than 0) and the id already exists in the table, assertion will be thrown
-        check(institr == _tokens.end(), "instrumentId exists!");
+        check(institr == _tokens.end(), "instrumentId exists! [instrument.mint]");
     }
 
     // ------- Copy an existing intstrument from a template
@@ -151,7 +151,7 @@ ACTION instrument::createinst(name minter, name owner, uint64_t instrumentId, in
         _account.emplace(_self, [&](auto &a) {
             a.owner = owner;
             a.balance = 0;
-            print("new instrument account: ", a.primary_key(), "\n");
+            print("new instrument account: ", a.primary_key(), " [instrument.createinst] \n");
         });
         accountitr = _account.find(owner.value);
     }
@@ -227,7 +227,7 @@ ACTION instrument::checkright(name minter, name issuer, string rightname, uint64
         {
            cancel_deferred(deferred_transaction_id);
         }
-        msg = "right:" + rightname + " doesn't exist";
+        msg = "right:" + rightname + " doesn't exist [instrument.checkright]";
         check(rightitr.owner.value != 0, msg.c_str());
     }
 
@@ -292,11 +292,11 @@ ACTION instrument::update(name updater, string instrument_template, instrument_d
         item = find_token_by_template(instrument_template);
     }
 
-    check(item.owner == updater || item.minted_by == updater, "updater acccount doesn't have the authority to change start/emd time of the instrument");
+    check(item.owner == updater || item.minted_by == updater, "updater acccount doesn't have the authority to change start/emd time of the instrument [instrument.update]");
 
-    check(item.revoked == false, "Token is already revoked");
+    check(item.revoked == false, "Token is already revoked [instrument.update]");
 
-    check(item.instrument.mutability == 1 || item.instrument.mutability == 2, "the instrument to be updated is immutable");
+    check(item.instrument.mutability == 1 || item.instrument.mutability == 2, "the instrument to be updated is immutable [instrument.update]");
 
     rights_registry rights_contract("rights.ore"_n,"rights.ore"_n,_ds);
 
@@ -391,13 +391,13 @@ ACTION instrument::transfer(name sender, name to, uint64_t instrument_id)
     //find token
     auto tokenitr = _tokens.find(instrument_id);
 
-    msg = "Instrument Id" + to_string(instrument_id) + "doesn't exist";
+    msg = "Instrument Id" + to_string(instrument_id) + "doesn't exist [instrument.transfer]";
     check(tokenitr != _tokens.end(), msg.c_str());
 
-    msg = "Sender account is not allowed to transfer the instrument " + sender.to_string();
+    msg = "Sender account is not allowed to transfer the instrument " + sender.to_string() + " [instrument.transfer]";
     check(tokenitr->owner == sender, msg.c_str());
 
-    msg = "Instrument Id " + to_string(instrument_id) + " has been previously revoked";
+    msg = "Instrument Id " + to_string(instrument_id) + " has been previously revoked [instrument.transfer]";
     check(tokenitr->revoked == false, msg.c_str());
 
     // transfer balance in the accounts table
@@ -421,13 +421,13 @@ ACTION instrument::revoke(name revoker, uint64_t instrument_id)
     //Checking if the token exists.
     auto tokenitr = _tokens.find(instrument_id);
 
-    msg = "Instrument Id" + to_string(instrument_id) + "doesn't exist";
+    msg = "Instrument Id" + to_string(instrument_id) + "doesn't exist [instrument.revoke]";
     check(tokenitr != _tokens.end(), msg.c_str());
 
-    msg = "The account " + revoker.to_string() + "doesn't have authority to revoke the instrument";
+    msg = "The account " + revoker.to_string() + "doesn't have authority to revoke the instrument [instrument.revoke]";
     check(tokenitr->owner == revoker, msg.c_str());
 
-    msg = "Instrument Id" + to_string(instrument_id) + "has been previously revoked";
+    msg = "Instrument Id" + to_string(instrument_id) + "has been previously revoked [instrument.revoke]";
     check(tokenitr->revoked == false, msg.c_str());
 
     _tokens.modify(tokenitr, same_payer, [&](auto &t) {
@@ -449,13 +449,13 @@ ACTION instrument::burn(name burner, uint64_t instrument_id)
     // Checking if the token exists.
     auto tokenitr = _tokens.find(instrument_id);
 
-    msg = "Instrument Id" + to_string(instrument_id) + "doesn't exist";
+    msg = "Instrument Id" + to_string(instrument_id) + "doesn't exist [instrument.burn]";
     check(tokenitr != _tokens.end(), msg.c_str());
 
-    msg = "The account " + burner.to_string() + "doesn't have authority to burn the instrument";
+    msg = "The account " + burner.to_string() + "doesn't have authority to burn the instrument [instrument.burn]";
     check(tokenitr->owner == burner, msg.c_str());
 
-    msg = "Instrument Id" + to_string(instrument_id) + "is not mutable and cannot be burned.";
+    msg = "Instrument Id" + to_string(instrument_id) + "is not mutable and cannot be burned [instrument.burn]";
     check(tokenitr->instrument.mutability == 2, msg.c_str());
 
     transfer_balances(burner, same_payer, instrument_id);
@@ -477,14 +477,14 @@ ACTION instrument::create(name issuer,
     // auto sym = "maximum_supply.symbol";
     eosio::symbol sym = symbol(symbol_code("OREINST"),4);
 
-    check(maximum_supply.symbol == sym, "symbol name must be ORINST");
-    check(sym.is_valid(), "invalid symbol name");
-    check(maximum_supply.is_valid(), "invalid supply");
-    check(maximum_supply.amount > 0, "max-supply must be positive");
+    check(maximum_supply.symbol == sym, "symbol name must be ORINST [instrument.create]");
+    check(sym.is_valid(), "invalid symbol name [instrument.create]");
+    check(maximum_supply.is_valid(), "invalid supply [instrument.create]");
+    check(maximum_supply.amount > 0, "max-supply must be positive [instrument.create]");
 
     stats statstable(_self, sym.code().raw());
     auto existing = statstable.find(sym.code().raw());
-    check(existing == statstable.end(), "token with symbol already exists");
+    check(existing == statstable.end(), "token with symbol already exists [instrument.create]");
 
     statstable.emplace(_self, [&](auto &s) {
         s.supply.symbol = sym;
@@ -500,20 +500,20 @@ ACTION instrument::create(name issuer,
 ACTION instrument::issue(name to, asset quantity, string memo)
 {
     auto sym = quantity.symbol;
-    check(sym.is_valid(), "invalid symbol name");
-    check(memo.size() <= 256, "memo has more than 256 bytes");
+    check(sym.is_valid(), "invalid symbol name [instrument.issue]");
+    check(memo.size() <= 256, "memo has more than 256 bytes [instrument.issue]");
 
     stats statstable(_self, sym.code().raw());
     auto existing = statstable.find(sym.code().raw());
-    check(existing != statstable.end(), "token with symbol does not exist, create token before issue");
+    check(existing != statstable.end(), "token with symbol does not exist, create token before issue [instrument.issue]");
     const auto &st = *existing;
 
     require_auth(st.issuer);
-    check(quantity.is_valid(), "invalid quantity");
-    check(quantity.amount > 0, "must issue positive quantity");
+    check(quantity.is_valid(), "invalid quantity [instrument.issue]");
+    check(quantity.amount > 0, "must issue positive quantity [instrument.issue]");
 
-    check(quantity.symbol == st.supply.symbol, "symbol precision mismatch");
-    check(quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
+    check(quantity.symbol == st.supply.symbol, "symbol precision mismatch [instrument.issue]");
+    check(quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply [instrument.issue]");
 
     statstable.modify(st, same_payer, [&](auto &s) {
         s.supply += quantity;
@@ -537,7 +537,7 @@ void instrument::sub_balance(name owner, asset value)
     accounts from_acnts(_self, owner.value);
 
     const auto &from = from_acnts.get(value.symbol.code().raw(), "no balance object found");
-    check(from.balance.amount >= value.amount, "overdrawn balance");
+    check(from.balance.amount >= value.amount, "overdrawn balance [instrument.sub_balance]");
 
     if (from.balance.amount == value.amount)
     {

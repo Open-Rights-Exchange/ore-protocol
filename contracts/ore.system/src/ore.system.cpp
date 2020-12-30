@@ -8,9 +8,9 @@ ACTION oresystem::migrate()
         _prices.erase(_prices.begin());
     }
     auto priceitr = _prices.begin();
-    check(priceitr == _prices.end(), "pricetable has to be empty for migration");
+    check(priceitr == _prices.end(), "pricetable has to be empty for migration [oresystem.migrate]");
     auto tieritr = _tiers.begin();
-    check(tieritr == _tiers.end(), "tiertable has to be empty for migration");
+    check(tieritr == _tiers.end(), "tiertable has to be empty for migration [oresystem.migrate]");
 
     _prices.emplace(_self, [&](auto &p) {
         p.pricename = minimal_account_price;
@@ -88,7 +88,7 @@ ACTION oresystem::createoreacc(name creator,
     authority activeauth{.threshold = 1, .keys = {key_weight{activekey, 1}}, .accounts = {}, .waits = {}};
 
     auto tieritr = _tiers.find(tier);
-    check(tieritr != _tiers.end(), "No tier found");
+    check(tieritr != _tiers.end(), "No tier found [oresystem.createoreacc]");
 
     asset createprice = getPrice(minimal_account_price);
     // Calculate createprice from minimal account price and tier requirements
@@ -260,7 +260,7 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t tier)
     }
     else if (oldStaker == name(""))
     {
-        check(newprice == oldTierInfoItr->createprice, "This account needs to be migrated first. Call changetier with same tier or same createprice.");
+        check(newprice == oldTierInfoItr->createprice, "This account needs to be migrated first. Call changetier with same tier or same createprice. [oresystem.chgacctier]");
         action(
             permission_level{ore_system, "active"_n},
             "eosio.token"_n,
@@ -310,7 +310,7 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t tier)
         }
         else if (newprice < oldTierInfoItr->createprice)
         {
-            check(payer == account, "To downgrade tier, payer has to be owner");
+            check(payer == account, "To downgrade tier, payer has to be owner [oresystem.chgacctier]");
             if (oldStaker == account)
             {
                 orePriceDelta = oldTierInfoItr->createprice - newprice;

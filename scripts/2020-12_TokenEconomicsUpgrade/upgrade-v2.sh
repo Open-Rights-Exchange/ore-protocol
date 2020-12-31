@@ -31,8 +31,4 @@ $cleos push action -x 1000 eosio.token setstaked '["0.0000 ORE"]' -p eosio.token
 sleep 2s
 $cleos push action -x 1000 eosio setinflation '[0, 10000, 10000]' -p eosio@active
 sleep 2s
-$cleos push action -x 1000 eosio claimrewards '["producer1"]' -p producer1@active
-sleep 2s
-$cleos transfer -x 1000 eosio test11111112 "100.0000 ORE" "test.com,50,10" -p eosio@active
-sleep 2s
 $cleos push action -x 1000 system.ore migrate '[]' -p system.ore

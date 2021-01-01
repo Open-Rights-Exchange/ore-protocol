@@ -14,10 +14,10 @@ services:
     networks:
       - testnet
     volumes:
-      - ../chain-setup/data/:/data/
-      - ../chain-setup/contracts-v1/:/root/contracts-v1
-      - ../chain-setup/contracts-v2/:/root/contracts-v2
-      - ../../../contracts/:/root/contracts
+      - ../data/:/data/
+      - ../contracts-v1/:/root/contracts-v1
+      - ../contracts-v2/:/root/contracts-v2
+      - ../../../../../contracts/:/root/contracts
     ports:
       - '8889:8888'
     depends_on:
@@ -34,7 +34,7 @@ services:
     networks:
       - testnet
     volumes:
-      - ../chain-setup/data/:/data/
+      - ../data/:/data/
     ports:
       - '8902:8901'
 

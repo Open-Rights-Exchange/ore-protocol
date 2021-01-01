@@ -5,7 +5,7 @@ createescrow_path=${2:-~}/contracts-v2/CreateEscrow
 if [[ "$2" == "/root" ]]; then
   ore_contracts="$2/contracts"
 else
-  ore_contracts="$2/../../../contracts"
+  ore_contracts="$2/../../../../contracts"
 fi
 
 sleep 2s

@@ -1,10 +1,10 @@
 ## Token Economics V2 Upgrade ##
 
-./upgrade-v2.sh contains the exact steps that has applied for chain upgrade.
+/test-environment contains files to generate (dockerized or local build) test EOSIO chain, deploy contracts to emulate pre-upgrade chain state.
 
-./setup-v1.sh and ./chain-setups generates pre-upgrade environment for testing purposes.
+/upgrade contains the actual script that is used to deploy ORE v2 contracts (step1) also verification scripts to monitor chain's system status.
 
-To appy upgrade and run tests, from repositories root directory:
+To apply upgrade and run tests, from /test-environment directory:
 
 ```bash
 #Run tests using pre-built docker images

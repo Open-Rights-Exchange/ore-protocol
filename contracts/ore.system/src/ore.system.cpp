@@ -249,7 +249,7 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t tier)
     tierinfotable _tierinfo(_self, account.value);
     auto oldTierInfoItr = _tierinfo.begin();
     name oldStaker = getStakerName(account);
-    if (_tierinfo.begin() == _tierinfo.end())
+    if (oldTierInfoItr == _tierinfo.end())
     {
         action(
             permission_level{ore_system, "active"_n},
@@ -260,7 +260,7 @@ ACTION oresystem::chgacctier(name payer, name account, uint64_t tier)
     }
     else if (oldStaker == name(""))
     {
-        check(newprice == oldTierInfoItr->createprice, "This account needs to be migrated first. Call changetier with same tier or same createprice. [oresystem.chgacctier]");
+        check(tier == oldTierInfoItr->pricekey, "This account needs to be migrated first. Call changetier with same tier. [oresystem.chgacctier]");
         action(
             permission_level{ore_system, "active"_n},
             "eosio.token"_n,

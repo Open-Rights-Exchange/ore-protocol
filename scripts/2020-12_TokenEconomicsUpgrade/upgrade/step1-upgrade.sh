@@ -16,9 +16,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 sleep 2s
 $DIR/upgradeScripts/step1-unstake-ram.sh $cleos 
-sleep 2s
+read -p "press key" keypress
 $DIR/upgradeScripts/step2-update-eosio.sh "$cleos" "$eosio_contracts"
-sleep 2s
+read -p "press key" keypress
 $DIR/upgradeScripts/step3-update-ore-system.sh "$cleos" "$ore_contracts"
-sleep 2s
+read -p "press key" keypress
 $DIR/upgradeScripts/step4-update-createescrow.sh "$cleos" "$createescrow_path"

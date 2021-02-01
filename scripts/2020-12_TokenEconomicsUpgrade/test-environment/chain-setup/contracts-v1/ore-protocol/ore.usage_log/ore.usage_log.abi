@@ -1,0 +1,152 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT ",
+    "version": "eosio::abi/1.1",
+    "types": [],
+    "structs": [
+        {
+            "name": "callcount",
+            "base": "",
+            "fields": [
+                {
+                    "name": "right_hash",
+                    "type": "uint64"
+                },
+                {
+                    "name": "right_name",
+                    "type": "string"
+                },
+                {
+                    "name": "last_usage_time",
+                    "type": "time_point_sec"
+                },
+                {
+                    "name": "total_count",
+                    "type": "uint64"
+                },
+                {
+                    "name": "total_cpu",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "createlog",
+            "base": "",
+            "fields": [
+                {
+                    "name": "instrument_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "right_name",
+                    "type": "string"
+                },
+                {
+                    "name": "token_hash",
+                    "type": "string"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "deletelog",
+            "base": "",
+            "fields": [
+                {
+                    "name": "instrument_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "token_hash",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "log",
+            "base": "",
+            "fields": [
+                {
+                    "name": "instrument_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "right_hash",
+                    "type": "uint64"
+                },
+                {
+                    "name": "right_name",
+                    "type": "string"
+                },
+                {
+                    "name": "action_type",
+                    "type": "bool"
+                },
+                {
+                    "name": "token_hash",
+                    "type": "uint64"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "updatecount",
+            "base": "",
+            "fields": [
+                {
+                    "name": "instrument_id",
+                    "type": "uint64"
+                },
+                {
+                    "name": "right_name",
+                    "type": "string"
+                },
+                {
+                    "name": "cpu",
+                    "type": "asset"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "name": "createlog",
+            "type": "createlog",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "deletelog",
+            "type": "deletelog",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "updatecount",
+            "type": "updatecount",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "counts",
+            "type": "callcount",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "logs",
+            "type": "log",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": []
+}

@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+
+  ore-main:
+    container_name: ore-main
+    hostname: ore-main
+    build:
+      context: .
+      dockerfile: build-eosio-testnet.dockerfile
+    image: openrightsexchange/ore-chain:v1.8.7
+    command: nodeos --data-dir /data --config-dir /data --config config.ini --logconf /data/logging.json --genesis-json /data/genesis.json >> /data/nodeos.log
+    stop_grace_period: 1m0s
+    networks:
+      - testnet
+    volumes:
+      - ../data/:/data/
+      - ../contracts-v1/:/root/contracts-v1
+      - ../contracts-v2/:/root/contracts-v2
+      - ../../../../../contracts/:/root/contracts
+    ports:
+      - '8889:8888'
+    depends_on:
+      - ore-wallet
+
+  ore-wallet:
+    container_name: ore-wallet
+    hostname: ore-wallet
+    build:
+      context: .
+      dockerfile: build-eosio-testnet.dockerfile
+    image: openrightsexchange/ore-chain:v1.8.7
+    command: keosd --http-server-address=0.0.0.0:8901 --http-validate-host 0 --verbose-http-errors --unlock-timeout=9999999
+    networks:
+      - testnet
+    volumes:
+      - ../data/:/data/
+    ports:
+      - '8902:8901'
+
+networks:
+  testnet:

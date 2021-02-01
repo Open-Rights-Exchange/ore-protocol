@@ -9,9 +9,10 @@ jobs:
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: bcelebci/ore-protocol
+      - image: openrightsexchange/ore-chain:v1.8.7
         environment:
           PIPENV_VENV_IN_PROJECT: true
+        
 
     steps:
       - checkout
@@ -35,11 +36,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            tests/build_and_test.sh
-            python3 tests/standard_token.py
-            python3 tests/rights_registry.py
-            python3 tests/instrument.py
-            python3 tests/usage_log.py
+            ./test.sh cleos
 
       - store_artifacts:
           path: test-reports
